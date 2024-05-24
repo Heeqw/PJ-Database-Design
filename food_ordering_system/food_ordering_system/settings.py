@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'dish_app',
     'order_app',
     'message_app',
+    'django_extensions',
 ]
 
 REST_FRAMEWORK = {
