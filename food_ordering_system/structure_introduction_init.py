@@ -3,8 +3,8 @@ import mysql.connector
 # MySQL 连接信息
 config = {
     'host': 'localhost',
-    'user': 'root',
-    'password': '030912syc',
+    'user': 'admin',
+    'password': '123456',
     'database': 'food_ordering_system',
 }
 

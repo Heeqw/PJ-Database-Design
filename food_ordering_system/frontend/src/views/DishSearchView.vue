@@ -1,10 +1,15 @@
-<script setup>
+<template>
+  <div class="merchants">
+    <h1>搜索菜品</h1>
+  </div>
+</template>
+
+
+<script>
 
 </script>
 
-<template>
 
-</template>
 
 <style scoped>
 

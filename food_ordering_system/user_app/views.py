@@ -1,3 +1,4 @@
+
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -6,7 +7,7 @@ from .models import User, FavoriteDish, FavoriteMerchant
 from .serializers import UserSerializer, FavoriteDishSerializer, FavoriteMerchantSerializer, OrderSerializer
 from merchant_app.models import Merchant
 from order_app.models import Order
-from django.contrib.auth import login, logout
+from django.contrib.auth import authenticate,login, logout
 
 
 @api_view(['GET'])
