@@ -1,10 +1,9 @@
 from django.db import models
-from user_app.models import User
+from rest_framework.authtoken.models import Token as DefaultToken
+import uuid
 
 
-# Create your models here.
 class Merchant(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='merchant_profile')
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
@@ -12,3 +11,27 @@ class Merchant(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class MerchantLogin(models.Model):
+    merchant = models.OneToOneField(Merchant, on_delete=models.CASCADE, related_name='login')
+    username = models.CharField(max_length=150, unique=True)
+    password = models.CharField(max_length=128)
+
+    def __str__(self):
+        return self.username
+
+
+class MerchantToken(models.Model):
+    key = models.CharField(max_length=40, primary_key=True)
+    user = models.OneToOneField(MerchantLogin, related_name='auth_token', on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_key()
+        return super().save(*args, **kwargs)
+
+    @staticmethod
+    def generate_key():
+        return uuid.uuid4().hex

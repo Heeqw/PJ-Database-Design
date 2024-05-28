@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import User, FavoriteMerchant, FavoriteDish
-from merchant_app.models import Merchant
 from order_app.models import Order
 
 
