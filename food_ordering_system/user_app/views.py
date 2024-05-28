@@ -6,7 +6,8 @@ from .models import User, FavoriteDish, FavoriteMerchant
 from .serializers import UserSerializer, FavoriteDishSerializer, FavoriteMerchantSerializer, OrderSerializer
 from merchant_app.models import Merchant
 from order_app.models import Order
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
+from rest_framework.authtoken.models import Token
 
 
 @api_view(['GET'])
@@ -37,6 +38,22 @@ def update_profile(request):
         serializer.save()
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def user_login(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    user = authenticate(request, username=username, password=password)
+
+    if user is not None:
+        login(request, user)
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key, 'user': UserSerializer(user).data})
+    else:
+        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['POST'])

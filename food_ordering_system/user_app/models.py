@@ -7,13 +7,16 @@ class User(AbstractUser):
     ROLE_CHOICES = [
         ('admin', 'Admin'),
         ('student', 'Student'),
-        ('staff', 'Staff')
+        ('staff', 'Staff'),
+        ('merchant', 'Merchant')
     ]
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     student_id = models.CharField(max_length=20, blank=True, null=True, unique=True)
     staff_id = models.CharField(max_length=20, blank=True, null=True, unique=True)
     full_name = models.CharField(max_length=100)
-    gender = models.CharField(max_length=10)
+    GENDER_CHOICES = [('male', 'Male'), ('female', 'Female'), ('other', 'Other')]
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
+
 
     def save(self, *args, **kwargs):
         if self.role == 'student':

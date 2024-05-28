@@ -1,4 +1,5 @@
 from django.db import models
+from merchant_app.models import Merchant
 
 
 # Create your models here.
@@ -10,7 +11,7 @@ class Allergen(models.Model):
 
 
 class Dish(models.Model):
-    merchant = models.ForeignKey(Allergen, on_delete=models.CASCADE, related_name='dishes')
+    merchant = models.ForeignKey(Merchant, on_delete=models.CASCADE, related_name='dishes')
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
