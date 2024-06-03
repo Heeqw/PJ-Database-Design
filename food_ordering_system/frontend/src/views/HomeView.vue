@@ -1,7 +1,8 @@
 <template>
   <div class="home">
     <h1>校园点餐系统</h1>
-    <el-button type="primary" class="login-button" @click="goToLogin">登录</el-button>
+    <el-button type="primary" class="login-button" @click="goToUserLogin">用户登录</el-button>
+    <el-button type="primary" class="login-button" @click="goToMerchantLogin">商家登录</el-button>
   </div>
 </template>
 
@@ -9,8 +10,11 @@
 export default {
   name: 'HomeView',
   methods: {
-    goToLogin() {
-      this.$router.push({ name: 'Login' });
+    goToUserLogin() {
+      this.$router.push({ name: 'UserLogin' });
+    },
+    goToMerchantLogin() {
+      this.$router.push({ name: 'MerchantLogin' });
     }
   }
 };
@@ -20,5 +24,7 @@ export default {
 .home {
   padding: 20px;
 }
-
+.login-button {
+  margin-right: 10px;
+}
 </style>

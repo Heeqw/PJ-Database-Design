@@ -1,50 +1,37 @@
 <template>
   <div class="profile">
-    <h1>User Profile</h1>
-    <div>
-      <p><strong>Username:</strong> {{ userProfile.username }}</p>
-      <p><strong>Email:</strong> {{ userProfile.email }}</p>
-      <p><strong>Role:</strong> {{ userProfile.role }}</p>
-      <p><strong>Full Name:</strong> {{ userProfile.full_name }}</p>
-      <p><strong>Gender:</strong> {{ userProfile.gender }}</p>
-    </div>
+    <h1>个人信息</h1>
+    <p>用户名: {{ username }}</p>
+    <p>全名: {{ full_name }}</p>
+    <p>角色: {{ role }}</p>
+    <p>性别: {{ gender }}</p>
+    <p>手机号: {{ phone }}</p>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-
 export default {
+  name: 'ProfileView',
   data() {
     return {
-      userProfile: {}
+      username: '',
+      full_name: '',
+      role: '',
+      gender: '',
+      phone: ''
     };
   },
   created() {
-    this.fetchUserProfile();
-  },
-  watch: {
-    // 监听路由参数 id 的变化，当变化时重新获取商家数据
-    '$route.params.id': 'fetchUserData'
-  },
-  methods: {
-    fetchUserProfile() {
-      const userId = this.$route.params.id;
-      axios.get(`http://localhost:3000/api/user_app_user/${userId}`)
-          .then(response => {
-            this.userProfile = response.data[0];
-          })
-          .catch(error => {
-            console.error('Error fetching user profile:', error);
-          });
-    }
+    // 从本地存储中获取用户信息
+    this.username = localStorage.getItem('username');
+    this.full_name = localStorage.getItem('full_name');
+    this.role = localStorage.getItem('role');
+    this.gender = localStorage.getItem('gender');
+    this.phone = localStorage.getItem('phone');
   }
 };
 </script>
-
-<style>
-.profile {
-  font-family: Arial, sans-serif;
-  margin: 20px;
-}
+<style scoped>
+/* 在这里添加你的样式 */
 </style>
+

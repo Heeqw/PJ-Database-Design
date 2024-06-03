@@ -8,6 +8,7 @@ from merchant_app.models import Merchant
 from order_app.models import Order
 from django.contrib.auth import login, logout, authenticate
 from rest_framework.authtoken.models import Token
+from django.views.decorators.csrf import csrf_exempt
 
 
 @api_view(['GET'])

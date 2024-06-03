@@ -1,38 +1,41 @@
 <template>
-  <div class="dish-details">
-    <h1>{{ dish.name }}</h1>
-    <div>
-      <p><strong>Price:</strong> {{ dish.price }}</p>
-      <p><strong>Category:</strong> {{ dish.category }}</p>
+  <div>
+    <h1>Dish Details</h1>
+    <div v-if="loading">Loading...</div>
+    <div v-else>
+      <p>Name: {{ dish.name }}</p>
+      <p>price: {{ dish.price }}</p>
+      <p><img :src="dish.image_url" alt="Dish Image"></p>
+      <!-- Add more details here as needed -->
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-
 export default {
   data() {
     return {
-      dish: {}
+      loading: true,
+      dish: null,
+      error: null
     };
   },
-  created() {
-    this.fetchDishData();
-  },
-  watch: {
-    // 监听路由参数 id 的变化，当变化时重新获取菜品数据
-    '$route.params.id': 'fetchDishData'
+  mounted() {
+    this.fetchDishDetails();
   },
   methods: {
-    fetchDishData() {
+    fetchDishDetails() {
       const dishId = this.$route.params.id;
-      axios.get(`http://localhost:3000/api/dish_app_dish/${dishId}`)
-          .then(response => {
-            this.dish = response.data[0]; // 假设返回的数据只有一个菜品
+      fetch(`http://127.0.0.1:8000/api/dishes/${dishId}/`)
+          .then(response => response.json())
+          .then(data => {
+            this.loading = false;
+            this.dish = data;
           })
           .catch(error => {
-            console.error('获取菜品数据时出错:', error);
+            this.loading = false;
+            this.error = 'Failed to fetch dish details';
+            console.error('Error fetching dish details:', error);
           });
     }
   }
@@ -43,5 +46,12 @@ export default {
 
 .details p {
   margin-bottom: 10px;
+}
+img {
+  width: 100%; /* Adjust as needed */
+  max-width: 400px; /* Adjust as needed */
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }
 </style>
