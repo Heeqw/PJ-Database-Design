@@ -28,13 +28,14 @@ export default {
         password: this.password
       })
           .then(response => {
-            const merchantId = response.data.id;
-            const merchantName = response.data.name; // 获取商家名
+            const merchant = response.data.merchant;
             // 保存商家信息到本地存储
-            localStorage.setItem('merchantId', merchantId);
-            localStorage.setItem('merchantName', merchantName);
+            localStorage.setItem('merchantId', merchant.id);
+            localStorage.setItem('merchantName', merchant.name);
+            localStorage.setItem('merchantAddress', merchant.address);
+            localStorage.setItem('merchantPhone', merchant.phone);
             // 导航到商家的仪表板或其他页面
-            this.$router.push(`/merchant_dashboard/${merchantId}`);
+            this.$router.push(`/merchant_dashboard/${merchant.id}`);
           })
           .catch(error => {
             // 处理登录失败的响应

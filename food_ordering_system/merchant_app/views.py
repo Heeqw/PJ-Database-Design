@@ -68,9 +68,16 @@ def merchant_login(request):
     password = request.data.get('password')
     try:
         merchant_login_instance = MerchantLogin.objects.get(username=username)
+        merchant = merchant_login_instance.merchant
+        merchant_data = {
+            'id': merchant.id,
+            'name': merchant.name,
+            'address': merchant.address,
+            'phone': merchant.phone
+        }
         if check_password(password, merchant_login_instance.password):  # 使用 check_password 验证密码
             token, created = MerchantToken.objects.get_or_create(user=merchant_login_instance)
-            return Response({'message': '登录成功', 'token': token.key, 'merchant_id': merchant_login_instance.merchant.id},
+            return Response({'message': '登录成功', 'token': token.key, 'merchant': merchant_data},
                             status=status.HTTP_200_OK)
         else:
             return Response({'error': '密码错误'}, status=status.HTTP_401_UNAUTHORIZED)
