@@ -13,10 +13,11 @@ axios.defaults.baseURL = 'http://localhost:8000/api' // 后端 API 地址
 axios.defaults.timeout = 30000 // 请求超时时间（单位：毫秒）
 
 axios.interceptors.request.use(config => {
-    console.log(config);
-    config.headers.Authorization = window.sessionStorage.getItem('token');
-    // 在最后必须return
-    return config
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Token ${token}`;
+    }
+    return config;
 })
 
 // 在接收到响应之后，可以做一些拦截处理，例如处理错误信息等
@@ -27,6 +28,9 @@ axios.interceptors.response.use(
     },
     error => {
         // 处理错误信息
+        if (error.response && error.response.status === 401) {
+            // 这里可以处理认证失败的情况，例如跳转到登录页面
+        }
         return Promise.reject(error)
     }
 )

@@ -28,21 +28,12 @@ export default {
         password: this.password
       })
           .then(response => {
-            //const token = response.data.token;
-            const username = response.data.user.username; // 获取用户名
-            const userid = response.data.user.id;
-            const gender = response.data.gender;
-            const full_name = response.data.user.full_name;
-            const phone = response.data.user.phone;
-            const role = response.data.user.role;
-            //localStorage.setItem('token', token);
-            localStorage.setItem('username', username); // 存储用户名
-            localStorage.setItem('userid',userid);
-            localStorage.setItem('gender', gender);
-            localStorage.setItem('full_name',full_name);
-            localStorage.setItem('phone', phone);
-            localStorage.setItem('role', role);
-            this.$router.push(`/user_dashboard/${userid}`);
+            const token = response.data.token;
+            const user = response.data.user;
+            console.log('Token:', token); // 打印Token以供调试
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(user));
+            this.$router.push(`/user_dashboard/${user.id}`);
           })
           .catch(error => {
             // 处理登录失败的响应

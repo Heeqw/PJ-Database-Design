@@ -41,12 +41,8 @@ export default {
   methods: {
     fetchOrderHistory() {
       const token = localStorage.getItem('token'); // 从本地存储中获取token
-
-      axios.get('http://127.0.0.1:8000/api/orders/order_history', {
-        headers: {
-          'Authorization': `Token ${token}`
-        }
-      })
+      console.log('Token:', token);
+      axios.get('http://127.0.0.1:8000/api/orders/order_history')
           .then(response => {
             console.log('Response data:', response.data); // 调试：打印响应数据
             this.orders = response.data;

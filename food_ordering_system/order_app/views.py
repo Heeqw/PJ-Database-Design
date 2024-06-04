@@ -45,4 +45,5 @@ def place_order(request):
 def order_history(request):
     orders = Order.objects.filter(user=request.user)
     serializer = OrderSerializer(orders, many=True)
+    print(serializer.data)  # 添加调试打印
     return Response(serializer.data)
