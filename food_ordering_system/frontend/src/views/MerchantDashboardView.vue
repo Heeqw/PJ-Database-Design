@@ -1,5 +1,6 @@
 <template>
   <div class="home">
+    <MerchantLogoutButton/>
     <h1>Welcome, {{ merchantName }}</h1> <!-- 显示商家名 -->
     <p>This is your dashboard!</p>
     <el-button type="primary" @click="viewOrders">查看订单</el-button>
@@ -9,8 +10,11 @@
 </template>
 
 <script>
+import MerchantLogoutButton from "@/components/MerchantLogoutButton.vue";
+
 export default {
   name: 'MerchantDashboardView',
+  components: {MerchantLogoutButton},
   data() {
     return {
       merchantName: '',
@@ -23,7 +27,7 @@ export default {
   },
   methods: {
     viewOrders() {
-      this.$router.push({ name: 'MerchantOrders' });
+      this.$router.push({ name: 'MerchantOrder' });
     },
     manageDishes() {
       this.$router.push({ name: 'ManageDishes' });

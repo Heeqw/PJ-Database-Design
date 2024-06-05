@@ -1,5 +1,6 @@
 <template>
   <div>
+    <UserLogoutButton />
     <h2>订单总览</h2>
 
     <div v-if="loading">加载中...</div>
@@ -25,8 +26,10 @@
 
 <script>
 import axios from 'axios';
+import UserLogoutButton from "@/components/UserLogoutButton.vue";
 
 export default {
+  components: {UserLogoutButton},
   data() {
     return {
       orders: [],

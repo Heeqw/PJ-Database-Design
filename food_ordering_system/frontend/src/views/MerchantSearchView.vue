@@ -1,8 +1,9 @@
 <template>
   <div>
     <h2>Merchant Search</h2>
+    <UserLogoutButton />
     <input type="text" v-model="query" placeholder="Enter search keyword">
-    <button @click="searchMerchants">Search</button>
+    <el-button type="primary" class="search-merchant-button" @click="searchMerchants">搜索</el-button>
 
     <div v-if="loading">Loading...</div>
 
@@ -24,7 +25,11 @@
 </template>
 
 <script>
+import UserLogoutButton from '@/components/UserLogoutButton.vue';
 export default {
+  components: {
+    UserLogoutButton // 注册登出按钮组件
+  },
   data() {
     return {
       query: '',

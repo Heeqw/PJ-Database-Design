@@ -1,5 +1,6 @@
 <template>
   <div>
+    <UserLogoutButton />
     <h2>菜品搜索</h2>
     <input type="text" v-model="query" placeholder="输入菜品关键字">
     <button @click="searchDishes">搜索</button>
@@ -24,7 +25,10 @@
 </template>
 
 <script>
+import UserLogoutButton from "@/components/UserLogoutButton.vue";
+
 export default {
+  components: {UserLogoutButton},
   data() {
     return {
       query: '',

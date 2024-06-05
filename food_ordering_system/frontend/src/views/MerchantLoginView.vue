@@ -2,10 +2,14 @@
   <div>
     <h2>Merchant Login</h2>
     <form @submit.prevent="login">
-      <label>Username:</label>
-      <input type="text" v-model="username" required>
-      <label>Password:</label>
-      <input type="password" v-model="password" required>
+      <div style="display: block;">
+        <label>Username:</label>
+        <el-input v-model="username" style="width: 240px" type="username" placeholder="Please input username" clearable/>
+      </div>
+      <div style="display: block;">
+        <label>Password:</label>
+        <el-input v-model="password" style="width: 240px" type="password" placeholder="Please input password" clearable show-password/>
+      </div>
       <button type="submit">Login</button>
     </form>
   </div>
@@ -28,8 +32,10 @@ export default {
         password: this.password
       })
           .then(response => {
+            const token = response.data.token;
             const merchant = response.data.merchant;
             // 保存商家信息到本地存储
+            localStorage.setItem('token', token);
             localStorage.setItem('merchantId', merchant.id);
             localStorage.setItem('merchantName', merchant.name);
             localStorage.setItem('merchantAddress', merchant.address);

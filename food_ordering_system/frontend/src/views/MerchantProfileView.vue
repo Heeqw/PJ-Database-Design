@@ -1,6 +1,6 @@
 <template>
   <div>
-    <UserLogoutButton />
+    <MerchantLogoutButton />
     <h1>Merchant Details</h1>
     <div v-if="loading">Loading...</div>
     <div v-else>
@@ -34,10 +34,10 @@
 </template>
 
 <script>
-import UserLogoutButton from "@/components/UserLogoutButton.vue";
+import MerchantLogoutButton from "@/components/MerchantLogoutButton.vue";
 
 export default {
-  components: {UserLogoutButton},
+  components: {MerchantLogoutButton},
   data() {
     return {
       loading: true,

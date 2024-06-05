@@ -1,5 +1,6 @@
 <template>
   <div>
+    <UserLogoutButton />
     <h1>Dish Details</h1>
     <div v-if="loading">Loading...</div>
     <div v-else>
@@ -12,7 +13,10 @@
 </template>
 
 <script>
+import UserLogoutButton from "@/components/UserLogoutButton.vue";
+
 export default {
+  components: {UserLogoutButton},
   data() {
     return {
       loading: true,

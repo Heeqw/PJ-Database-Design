@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Order, OrderDetail
 from .serializers import OrderSerializer, OrderDetailSerializer
 from dish_app.models import Dish
+from decimal import Decimal
 
 
 @api_view(['POST'])
@@ -22,15 +23,15 @@ def place_order(request):
         total_price=0.0  # Initial price, calculate below
     )
 
-    total_price = 0.0
+    total_price = Decimal('0.0')
     for dish_id in dish_ids:
         try:
             dish = Dish.objects.get(id=dish_id)
         except Dish.DoesNotExist:
             continue
-        quantity = request.data.get('quantities', {}).get(str(dish_id), 1)
-        price = dish.price * quantity
-        total_price += price
+        quantity = int(request.data.get('quantities', {}).get(str(dish_id), 1))
+        price = Decimal(dish.price) * Decimal(quantity)
+        total_price += Decimal(price)
         OrderDetail.objects.create(order=order, dish=dish, quantity=quantity, price=price)
 
     order.total_price = total_price

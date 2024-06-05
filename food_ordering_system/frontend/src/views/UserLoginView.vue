@@ -1,11 +1,15 @@
 <template>
   <div>
-    <h2>Login</h2>
+    <h2>User Login</h2>
     <form @submit.prevent="login">
-      <label>Username:</label>
-      <input type="text" v-model="username" required>
-      <label>Password:</label>
-      <input type="password" v-model="password" required>
+      <div style="display: block;">
+        <label>Username:</label>
+        <el-input v-model="username" style="width: 240px" type="username" placeholder="Please input username" clearable/>
+      </div>
+      <div style="display: block;">
+        <label>Password:</label>
+        <el-input v-model="password" style="width: 240px" type="password" placeholder="Please input password" clearable show-password/>
+      </div>
       <button type="submit">Login</button>
     </form>
   </div>
@@ -33,6 +37,7 @@ export default {
             console.log('Token:', token); // 打印Token以供调试
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('username', user.username);
             this.$router.push(`/user_dashboard/${user.id}`);
           })
           .catch(error => {

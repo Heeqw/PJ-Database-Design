@@ -1,5 +1,6 @@
 <template>
   <div class="profile">
+    <UserLogoutButton />
     <h1>个人信息</h1>
     <p>用户名: {{ user.username }}</p>
     <p>全名: {{ user.full_name }}</p>
@@ -9,8 +10,11 @@
 </template>
 
 <script>
+import UserLogoutButton from "@/components/UserLogoutButton.vue";
+
 export default {
   name: 'ProfileView',
+  components: {UserLogoutButton},
   data() {
     return {
       user: {}
