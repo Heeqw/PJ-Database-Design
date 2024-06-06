@@ -8,6 +8,7 @@ class Merchant(models.Model):
     address = models.CharField(max_length=255)
     phone = models.CharField(max_length=20)
     created_at = models.DateTimeField(auto_now_add=True)
+    featured_dish = models.ForeignKey('dish_app.Dish', on_delete=models.SET_NULL,null=True,blank=True,related_name='featured_by')
 
     def __str__(self):
         return self.name

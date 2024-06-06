@@ -8,6 +8,9 @@ from merchant_app.models import Merchant, MerchantLogin, MerchantToken
 from merchant_app.serializers import MerchantSerializer, MerchantLoginSerializer
 from authentication_app.authentication import MerchantTokenAuthentication
 from django.contrib.auth.hashers import check_password
+from dish_app.models import Dish, PriceHistory
+from dish_app.serializers import DishSerializer, PriceHistorySerializer
+from order_app.models import Order
 
 
 @api_view(['GET'])
@@ -123,3 +126,110 @@ def merchant_info(request):
     merchant = merchant_login_instance.merchant
     serializer = MerchantSerializer(merchant)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([MerchantTokenAuthentication])
+def dish_list(request):
+    token = request.auth
+    merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
+    dishes = Dish.objects.filter(merchant=merchant_login_instance.merchant)
+    serializer = DishSerializer(dishes, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([MerchantTokenAuthentication])
+def create_dish(request):
+    token = request.auth
+    merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
+    data = request.data
+    data['merchant'] = merchant_login_instance.merchant.id
+    serializer = DishSerializer(data=data)
+    if serializer.is_valid():
+        dish = serializer.save()
+        return Response(DishSerializer(dish).data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([MerchantTokenAuthentication])
+def update_dish(request, dish_id):
+    token = request.auth
+    merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
+    dish = get_object_or_404(Dish, id=dish_id, merchant=merchant_login_instance.merchant)
+    serializer = DishSerializer(dish, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([MerchantTokenAuthentication])
+def delete_dish(request, dish_id):
+    token = request.auth
+    merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
+    dish = get_object_or_404(Dish, id=dish_id, merchant=merchant_login_instance.merchant)
+    dish.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([MerchantTokenAuthentication])
+def update_dish_price(request, dish_id):
+    token = request.auth
+    merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
+    dish = get_object_or_404(Dish, id=dish_id, merchant=merchant_login_instance.merchant)
+    new_price = request.data.get('new_price')
+    if new_price is None:
+        return Response({'error': 'New price is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    with transaction.atomic():
+        PriceHistory.objects.create(dish=dish, old_price=dish.price, new_price=new_price)
+        dish.price = new_price
+        dish.save()
+    return Response({'message': 'Dish price updated'}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([MerchantTokenAuthentication])
+def set_featured_dish(request):
+    token = request.auth
+    merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
+    merchant = merchant_login_instance.merchant
+    dish_id = request.data.get('dish_id')
+    if not dish_id:
+        return Response({'error': 'Dish ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        dish = Dish.objects.get(id=dish_id, merchant=merchant)
+    except Dish.DoesNotExist:
+        return Response({'error': 'Dish does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+    merchant.featured_dish = dish
+    merchant.save()
+    return Response({'message': 'Featured dish updated'}, status=status.HTTP_200_OK)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([MerchantTokenAuthentication])
+def confirm_order(request, order_id):
+    token = request.auth
+    merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
+    order = get_object_or_404(Order, id=order_id, merchant=merchant_login_instance.merchant)
+
+    if order.status != 'preparing':
+        return Response({'error': 'Only orders that are preparing can be confirmed'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    order.status = 'completed'
+    order.save()
+    return Response({'message': 'Order status updated to completed'}, status=status.HTTP_200_OK)

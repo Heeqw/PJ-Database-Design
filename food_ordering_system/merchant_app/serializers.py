@@ -1,39 +1,17 @@
 from rest_framework import serializers
 from .models import Merchant, MerchantLogin
-from dish_app.models import Dish, Review, Allergen
+from common.serializers import AllergenSerializer, DishSerializer, ReviewSerializer
 from django.contrib.auth.hashers import make_password
-
-
-class AllergenSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Allergen
-        fields = '__all__'
-
-
-class DishSerializer(serializers.ModelSerializer):
-    allergens = AllergenSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Dish
-        fields = '__all__'
-
-
-class ReviewSerializer(serializers.ModelSerializer):
-    user = serializers.ReadOnlyField(source='user.username')
-    dish = DishSerializer(read_only=True)
-
-    class Meta:
-        model = Review
-        fields = ['id', 'user', 'dish', 'rating', 'comment', 'created_at']
 
 
 class MerchantSerializer(serializers.ModelSerializer):
     dishes = DishSerializer(many=True, read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
+    featured_dish = DishSerializer(many=True, read_only=True)
 
     class Meta:
         model = Merchant
-        fields = ['id', 'name', 'address', 'phone', 'created_at', 'dishes', 'reviews']
+        fields = ['id', 'name', 'address', 'phone', 'created_at', 'dishes', 'reviews', 'featured_dish']
 
 
 class MerchantLoginSerializer(serializers.ModelSerializer):

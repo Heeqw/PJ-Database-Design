@@ -8,6 +8,7 @@ from order_app.models import Order, OrderDetail
 from .serializers import DishSerializer, ReviewSerializer, OrderDetailSerializer, UserSerializer, FavoriteDishSerializer
 
 
+# 菜品数据分析
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def dish_statistics(request, merchant_id):
@@ -61,6 +62,7 @@ def merchant_loyal_customers(request, merchant_id):
     return Response(data)
 
 
+# 用户活跃度分析
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_activity_analysis(request):
@@ -78,6 +80,7 @@ def user_activity_analysis(request):
     })
 
 
+# 用户群体特征分析
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_demographics_analysis(request):
