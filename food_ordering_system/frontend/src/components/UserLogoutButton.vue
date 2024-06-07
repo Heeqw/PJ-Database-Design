@@ -19,7 +19,7 @@ export default {
       // 重定向到登录页面
       setTimeout(() => {
               this.$router.push({ name: 'Home' });
-            }, 4000);
+            }, 3000);
     }
   }
 };

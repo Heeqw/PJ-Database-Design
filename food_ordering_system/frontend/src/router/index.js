@@ -9,6 +9,7 @@ import OrderPlaceView from '@/views/OrderPlaceView.vue';
 import MerchantDashboardView from "@/views/MerchantDashboardView.vue";
 import MerchantSearchView from '@/views/MerchantSearchView.vue';
 import MerchantDetailView from '@/views/MerchantDetailView.vue';
+import MerchantProfileView from '@/views/MerchantProfileView.vue';
 import MerchantLoginView from '@/views/MerchantLoginView.vue';
 import MerchantOrderView from '@/views/MerchantOrderView.vue';
 import DishSearchView from '@/views/DishSearchView.vue';
@@ -29,6 +30,7 @@ const routes = [
   { path: '/merchant_login', name: 'MerchantLogin', component: MerchantLoginView },
   { path: '/merchants/search', name: 'MerchantSearch', component: MerchantSearchView },
   { path: '/merchants/:id', name: 'MerchantDetail', component: MerchantDetailView },
+  { path: '/merchants_profile/:id', name: 'MerchantProfile', component: MerchantProfileView },
   { path: '/merchant_order', name: 'MerchantOrder', component: MerchantOrderView },
   { path: '/dishes/search/:id', name: 'DishSearch', component: DishSearchView },
   { path: '/dishes/:id', name: 'DishDetail', component: DishDetailView },

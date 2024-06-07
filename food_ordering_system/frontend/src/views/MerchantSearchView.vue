@@ -17,6 +17,9 @@
         <li v-for="merchant in merchants" :key="merchant.id">
           <router-link :to="{ name: 'MerchantDetail', params: { id: merchant.id } }">
             {{ merchant.name }} - {{ merchant.address }} - {{ merchant.phone }}
+          <p v-if="merchant.featured_dish">
+            主打菜品: {{ merchant.featured_dish.name }} - ${{ merchant.featured_dish.price }}
+          </p>
           </router-link>
         </li>
       </ul>
@@ -28,7 +31,7 @@
 import UserLogoutButton from '@/components/UserLogoutButton.vue';
 export default {
   components: {
-    UserLogoutButton // 注册登出按钮组件
+    UserLogoutButton
   },
   data() {
     return {
@@ -89,4 +92,3 @@ li a {
   height: 100%;
 }
 </style>
-

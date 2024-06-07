@@ -1,34 +1,31 @@
 <template>
   <div>
     <MerchantLogoutButton />
-    <h1>Merchant Details</h1>
-    <div v-if="loading">Loading...</div>
+    <h1>商家详情</h1>
+    <div v-if="loading">加载中...</div>
     <div v-else>
-      <p>Name: {{ merchant.name }}</p>
-      <p>Address: {{ merchant.address }}</p>
-      <p>Phone: {{ merchant.phone }}</p>
+      <p>名称：{{ merchant.name }}</p>
+      <p>地址：{{ merchant.address }}</p>
+      <p>电话：{{ merchant.phone }}</p>
 
       <!-- 商家详细信息 -->
 
-      <h2>Dishes</h2>
-      <div v-if="loadingDishes">Loading dishes...</div>
-      <div v-else-if="dishes.length === 0">No dishes found.</div>
+      <h2>菜品列表</h2>
+      <div v-if="loadingDishes">加载菜品中...</div>
+      <div v-else-if="dishes.length === 0">暂无菜品。</div>
       <div v-else>
         <ul>
           <li v-for="dish in dishes" :key="dish.id">
             <router-link :to="{ name: 'DishDetail', params: { id: dish.id } }">
-              <p>Name: {{ dish.name }}</p>
-              <p>Id: {{ dish.id }}</p>
-              <p>Price: {{ dish.price }}</p>
-              <p>Category: {{ dish.category }}</p>
+              <p>名称：{{ dish.name }}</p>
+              <p>编号：{{ dish.id }}</p>
+              <p>价格：{{ dish.price }}</p>
+              <p>类别：{{ dish.category }}</p>
             </router-link>
+            <button @click="deleteDish(dish.id)">删除</button>
           </li>
         </ul>
       </div>
-
-      <!-- 添加按钮跳转到搜索菜品页面 -->
-      <el-button type="primary" class="dish-search-button" @click="goToDishSearch">搜索菜品</el-button>
-      <el-button type="primary" class="order-place-button" @click="goToOrderPlace">我要下单</el-button>
     </div>
   </div>
 </template>
@@ -53,6 +50,7 @@ export default {
     this.fetchMerchantDishes();
   },
   methods: {
+    // 获取商家详情
     fetchMerchantDetails() {
       const merchantId = this.$route.params.id;
       fetch(`http://127.0.0.1:8000/api/merchants/${merchantId}/`)
@@ -63,13 +61,14 @@ export default {
           })
           .catch(error => {
             this.loading = false;
-            this.error = 'Failed to fetch merchant details';
-            console.error('Error fetching merchant details:', error);
+            this.error = '获取商家详情失败';
+            console.error('获取商家详情失败:', error);
           });
     },
+    // 获取商家菜品列表
     fetchMerchantDishes() {
       const merchantId = this.$route.params.id;
-      fetch(`http://127.0.0.1:8000/api/dishes/search/${merchantId}/`)
+      fetch(`http://127.0.0.1:8000/api/merchants/${merchantId}/dishes/search/`)
           .then(response => response.json())
           .then(data => {
             this.loadingDishes = false;
@@ -77,23 +76,34 @@ export default {
           })
           .catch(error => {
             this.loadingDishes = false;
-            this.errorDishes = 'Failed to fetch dishes';
-            console.error('Error fetching dishes:', error);
+            this.errorDishes = '获取菜品失败';
+            console.error('获取菜品失败:', error);
           });
     },
-    goToDishSearch() {
-      // 获取商家 ID
-      const merchantId = this.$route.params.id;
-      // 导航到搜索菜品页面，并传递商家 ID
-      this.$router.push({ name: 'DishSearch', params: { id: merchantId } });
-    },
-    goToOrderPlace(){
-      // 获取商家 ID
-      const merchantId = this.$route.params.id;
-      // 导航到点单页面，并传递商家 ID
-      this.$router.push({ name: 'OrderPlace', params: { id: merchantId } });
+    // 删除菜品
+    deleteDish(dishId) {
+      const token = localStorage.getItem('token'); // 假设 token 存储在本地存储中
+      fetch(`http://127.0.0.1:8000/api/merchants/delete_dish/${dishId}/`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`
+        }
+      })
+          .then(response => {
+            if (response.ok) {
+              // 从列表中移除被删除的菜品
+              this.dishes = this.dishes.filter(dish => dish.id !== dishId);
+              alert('菜品删除成功');
+            } else {
+              throw new Error('删除菜品失败！');
+            }
+          })
+          .catch(error => {
+            console.error('删除菜品失败:', error);
+            alert('删除菜品失败');
+          });
     }
-
   }
 };
 </script>
@@ -119,5 +129,16 @@ li a {
   display: block;
   width: 100%;
   height: 100%;
+}
+button {
+  margin-top: 10px;
+  color: #fff;
+  background-color: #f56c6c;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #d9534f;
 }
 </style>

@@ -3,6 +3,21 @@
     <UserLogoutButton />
     <h2>点单页面</h2>
 
+    <!-- 选择就餐状态 -->
+    <label for="dining-status">选择就餐状态: </label>
+    <el-select v-model="orderDiningStatus" style="width: 200px" placeholder="请选择">
+      <el-option label="堂食" value="dines_in"></el-option>
+      <el-option label="预定" value="reservation"></el-option>
+    </el-select>
+
+    <!-- 预定日期和时间 -->
+    <div v-if="orderDiningStatus === 'reservation'">
+      <label for="date">选择日期: </label>
+      <el-date-picker v-model="reservationDate" type="date" placeholder="选择日期"></el-date-picker>
+      <label for="time">选择时间: </label>
+      <el-time-picker v-model="reservationTime" placeholder="选择时间"></el-time-picker>
+    </div>
+
     <!-- 菜品列表 -->
     <div v-for="dish in dishes" :key="dish.id">
       <p>{{ dish.name }}</p>
@@ -26,10 +41,13 @@ export default {
   components: {UserLogoutButton},
   data() {
     return {
-      dishes: [],       // 菜品列表
-      quantities: {},   // 菜品数量
-      merchantId: null, // 商家ID
+      dishes: [],         // 菜品列表
+      quantities: {},     // 菜品数量
+      merchantId: null,   // 商家ID
       orderType: 'Online',
+      orderDiningStatus: null, // 就餐状态
+      reservationDate: null,   // 预定日期
+      reservationTime: null,   // 预定时间
       status: 'Preparing'
     };
   },
@@ -42,7 +60,7 @@ export default {
   methods: {
     // 获取菜品列表
     fetchDishes() {
-      axios.get(`http://127.0.0.1:8000/api/dishes/search/${this.merchantId}/`)
+      axios.get(`http://127.0.0.1:8000/api/merchants/${this.merchantId}/dishes/search/`)
           .then(response => {
             this.dishes = response.data;
             // 初始化菜品数量为1
@@ -63,11 +81,19 @@ export default {
     },
     // 提交订单
     placeOrder() {
+      if (this.orderDiningStatus === 'reservation' && (!this.reservationDate || !this.reservationTime)) {
+        ElMessage.error('预定必须选择日期和时间');
+        return;
+      }
+
       const requestData = {
         dishes: Object.keys(this.quantities).map(id => parseInt(id)),
         merchant: this.merchantId,
         order_type: this.orderType,
-        quantities: this.quantities
+        quantities: this.quantities,
+        order_dining_status: this.orderDiningStatus,
+        date: this.reservationDate,
+        time: this.reservationTime
       };
 
       axios.post('http://127.0.0.1:8000/api/orders/place_order/', requestData)
@@ -76,7 +102,7 @@ export default {
             ElMessage({
               message: '订单提交成功！',
               type: 'success',
-            })
+            });
             // 成功提交订单后跳转个人的订单历史页面
             setTimeout(() => {
               this.$router.push({ name: 'UserOrder' });
@@ -84,7 +110,7 @@ export default {
           })
           .catch(error => {
             console.error('订单提交失败:', error);
-            // 这里可以添加处理失败情况的逻辑
+            ElMessage.error('订单提交失败！');
           });
     }
   }
@@ -93,5 +119,4 @@ export default {
 
 <style scoped>
 /* 在这里添加页面样式 */
-
 </style>

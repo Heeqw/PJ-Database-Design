@@ -18,6 +18,6 @@ urlpatterns = [
     path('update_dish_price/<int:dish_id>/', update_dish_price, name='update_dish_price'),
     path('set_featured_dish/', set_featured_dish, name='set_featured_dish'),
     path('confirm_order/<int:order_id>/', confirm_order, name='confirm_order'),
-    path('merchant/<int:merchant_id>/reviews/', merchant_reviews, name='merchant_reviews'),
-    path('merchants/<int:merchant_id>/dishes/search/', search_dishes, name='search-dishes'),
+    path('<int:merchant_id>/reviews/', merchant_reviews, name='merchant_reviews'),
+    path('<int:merchant_id>/dishes/search/', search_dishes, name='search-dishes'),
 ]

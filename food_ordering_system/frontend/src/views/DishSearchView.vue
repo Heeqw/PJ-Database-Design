@@ -48,7 +48,7 @@ export default {
   methods: {
     searchDishes() {
       this.loading = true;
-      fetch(`http://127.0.0.1:8000/api/dishes/search/${this.merchantId}/?q=${this.query}`)
+      fetch(`http://127.0.0.1:8000/api/merchants/${this.merchantId}/dishes/search/?q=${this.query}`)
           .then(response => response.json())
           .then(data => {
             this.loading = false;

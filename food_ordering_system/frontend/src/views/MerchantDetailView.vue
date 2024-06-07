@@ -21,6 +21,8 @@
               <p>Id: {{ dish.id }}</p>
               <p>Price: {{ dish.price }}</p>
               <p>Category: {{ dish.category }}</p>
+              <!-- 添加主打菜图标 -->
+              <span v-if="dish.is_featured" class="featured-dish-icon">⭐️</span>
             </router-link>
           </li>
         </ul>
@@ -69,7 +71,7 @@ export default {
     },
     fetchMerchantDishes() {
       const merchantId = this.$route.params.id;
-      fetch(`http://127.0.0.1:8000/api/dishes/search/${merchantId}/`)
+      fetch(`http://127.0.0.1:8000/api/merchants/${merchantId}/dishes/search/`)
           .then(response => response.json())
           .then(data => {
             this.loadingDishes = false;
@@ -112,6 +114,7 @@ li {
   margin: 0.5rem auto;
   padding: 10px;
   border: 1px solid #ddd;
+  position: relative; /* 添加相对定位 */
 }
 li a {
   text-decoration: none;
@@ -119,5 +122,11 @@ li a {
   display: block;
   width: 100%;
   height: 100%;
+}
+.featured-dish-icon {
+  position: absolute;
+  top: 5px; /* 调整图标位置 */
+  right: 5px; /* 调整图标位置 */
+  font-size: 20px; /* 调整图标大小 */
 }
 </style>
