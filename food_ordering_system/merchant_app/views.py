@@ -16,6 +16,28 @@ from order_app.models import Order
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def search_merchants(request):
+    """
+    搜索商家。
+
+    参数:
+      - 名称: q
+        描述: 搜索关键字
+        必需: 否
+        类型: 字符串
+
+    响应:
+      200:
+        描述: 商家列表
+        示例:
+          [
+            {
+              "id": 1,
+              "name": "示例商家",
+              "address": "示例地址",
+              "phone": "123456789"
+            }
+          ]
+    """
     query = request.GET.get('q')
     if query:
         merchants = Merchant.objects.filter(name__icontains=query)
@@ -28,6 +50,26 @@ def search_merchants(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def merchant_detail(request, merchant_id):
+    """
+    获取商家详细信息。
+
+    参数:
+      - 名称: merchant_id
+        描述: 商家的ID
+        必需: 是
+        类型: 整数
+
+    响应:
+      200:
+        描述: 商家详细信息
+        示例:
+          {
+            "id": 1,
+            "name": "示例商家",
+            "address": "示例地址",
+            "phone": "123456789"
+          }
+    """
     merchant = get_object_or_404(Merchant, id=merchant_id)
     serializer = MerchantSerializer(merchant)
     return Response(serializer.data)
@@ -36,6 +78,22 @@ def merchant_detail(request, merchant_id):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_merchant(request):
+    """
+    创建新商家。
+
+    响应:
+      201:
+        描述: 商家已创建
+        示例:
+          {
+            "id": 1,
+            "name": "示例商家",
+            "address": "示例地址",
+            "phone": "123456789"
+          }
+      400:
+        描述: 无效的输入
+    """
     with transaction.atomic():
         merchant_data = {
             'name': request.data.get('name'),
@@ -67,6 +125,36 @@ def create_merchant(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def merchant_login(request):
+    """
+    商家登录。
+
+    参数:
+      - 名称: username
+        描述: 商家的用户名
+        必需: 是
+        类型: 字符串
+      - 名称: password
+        描述: 商家的密码
+        必需: 是
+        类型: 字符串
+
+    响应:
+      200:
+        描述: 登录成功
+        示例:
+          {
+            "message": "登录成功",
+            "token": "abcdef123456",
+            "merchant": {
+              "id": 1,
+              "name": "示例商家",
+              "address": "示例地址",
+              "phone": "123456789"
+            }
+          }
+      401:
+        描述: 无效的凭证
+    """
     username = request.data.get('username')
     password = request.data.get('password')
     try:
@@ -92,6 +180,13 @@ def merchant_login(request):
 @permission_classes([IsAuthenticated])
 @authentication_classes([MerchantTokenAuthentication])
 def merchant_logout(request):
+    """
+    商家登出。
+
+    响应:
+      204:
+        描述: 登出成功
+    """
     try:
         request.auth.delete()
     except (AttributeError, MerchantToken.DoesNotExist):
@@ -103,6 +198,22 @@ def merchant_logout(request):
 @permission_classes([IsAuthenticated])
 @authentication_classes([MerchantTokenAuthentication])
 def manage_merchant(request):
+    """
+    获取或更新商家信息。
+
+    响应:
+      200:
+        描述: 商家信息已检索或更新
+        示例:
+          {
+            "id": 1,
+            "name": "示例商家",
+            "address": "示例地址",
+            "phone": "123456789"
+          }
+      400:
+        描述: 无效的输入
+    """
     token = request.auth
     merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
     merchant = merchant_login_instance.merchant
@@ -121,6 +232,20 @@ def manage_merchant(request):
 @permission_classes([IsAuthenticated])
 @authentication_classes([MerchantTokenAuthentication])
 def merchant_info(request):
+    """
+    获取商家信息。
+
+    响应:
+      200:
+        描述: 商家信息
+        示例:
+          {
+            "id": 1,
+            "name": "示例商家",
+            "address": "示例地址",
+            "phone": "123456789"
+          }
+    """
     token = request.auth
     merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
     merchant = merchant_login_instance.merchant
@@ -132,6 +257,25 @@ def merchant_info(request):
 @permission_classes([IsAuthenticated])
 @authentication_classes([MerchantTokenAuthentication])
 def dish_list(request):
+    """
+    获取商家的菜品列表。
+
+    响应:
+      200:
+        描述: 菜品列表
+        示例:
+          [
+            {
+              "id": 1,
+              "name": "示例菜品",
+              "merchant_id": 1,
+              "price": 10.99,
+              "description": "美味的示例菜品",
+              "created_at": "2024-06-07T12:00:00Z",
+              "updated_at": "2024-06-07T12:00:00Z"
+            }
+          ]
+    """
     token = request.auth
     merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
     dishes = Dish.objects.filter(merchant=merchant_login_instance.merchant)
@@ -143,6 +287,25 @@ def dish_list(request):
 @permission_classes([IsAuthenticated])
 @authentication_classes([MerchantTokenAuthentication])
 def create_dish(request):
+    """
+    创建新菜品。
+
+    响应:
+      201:
+        描述: 菜品已创建
+        示例:
+          {
+            "id": 1,
+            "name": "示例菜品",
+            "merchant_id": 1,
+            "price": 10.99,
+            "description": "美味的示例菜品",
+            "created_at": "2024-06-07T12:00:00Z",
+            "updated_at": "2024-06-07T12:00:00Z"
+          }
+      400:
+        描述: 无效的输入
+    """
     token = request.auth
     merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
     data = request.data
@@ -158,6 +321,31 @@ def create_dish(request):
 @permission_classes([IsAuthenticated])
 @authentication_classes([MerchantTokenAuthentication])
 def update_dish(request, dish_id):
+    """
+    更新菜品信息。
+
+    参数:
+      - 名称: dish_id
+        描述: 菜品的ID
+        必需: 是
+        类型: 整数
+
+    响应:
+      200:
+        描述: 菜品信息已更新
+        示例:
+          {
+            "id": 1,
+            "name": "示例菜品",
+            "merchant_id": 1,
+            "price": 10.99,
+            "description": "美味的示例菜品",
+            "created_at": "2024-06-07T12:00:00Z",
+            "updated_at": "2024-06-07T12:00:00Z"
+          }
+      400:
+        描述: 无效的输入
+    """
     token = request.auth
     merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
     dish = get_object_or_404(Dish, id=dish_id, merchant=merchant_login_instance.merchant)
@@ -172,6 +360,19 @@ def update_dish(request, dish_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([MerchantTokenAuthentication])
 def delete_dish(request, dish_id):
+    """
+    删除菜品。
+
+    参数:
+      - 名称: dish_id
+        描述: 菜品的ID
+        必需: 是
+        类型: 整数
+
+    响应:
+      204:
+        描述: 菜品已删除
+    """
     token = request.auth
     merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
     dish = get_object_or_404(Dish, id=dish_id, merchant=merchant_login_instance.merchant)
@@ -183,6 +384,25 @@ def delete_dish(request, dish_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([MerchantTokenAuthentication])
 def update_dish_price(request, dish_id):
+    """
+    更新菜品价格。
+
+    参数:
+      - 名称: dish_id
+        描述: 菜品的ID
+        必需: 是
+        类型: 整数
+      - 名称: new_price
+        描述: 新价格
+        必需: 是
+        类型: 浮点数
+
+    响应:
+      200:
+        描述: 菜品价格已更新
+      400:
+        描述: 无效的输入
+    """
     token = request.auth
     merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
     dish = get_object_or_404(Dish, id=dish_id, merchant=merchant_login_instance.merchant)
@@ -201,6 +421,23 @@ def update_dish_price(request, dish_id):
 @permission_classes([IsAuthenticated])
 @authentication_classes([MerchantTokenAuthentication])
 def set_featured_dish(request):
+    """
+    设置特色菜品。
+
+    参数:
+      - 名称: dish_id
+        描述: 菜品的ID
+        必需: 是
+        类型: 整数
+
+    响应:
+      200:
+        描述: 特色菜品已更新
+      400:
+        描述: 无效的输入
+      404:
+        描述: 菜品未找到
+    """
     token = request.auth
     merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
     merchant = merchant_login_instance.merchant
@@ -222,6 +459,23 @@ def set_featured_dish(request):
 @permission_classes([IsAuthenticated])
 @authentication_classes([MerchantTokenAuthentication])
 def confirm_order(request, order_id):
+    """
+    确认订单。
+
+    参数:
+      - 名称: order_id
+        描述: 订单的ID
+        必需: 是
+        类型: 整数
+
+    响应:
+      200:
+        描述: 订单状态已更新为完成
+      400:
+        描述: 无效的状态
+      404:
+        描述: 订单未找到
+    """
     token = request.auth
     merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
     order = get_object_or_404(Order, id=order_id, merchant=merchant_login_instance.merchant)
