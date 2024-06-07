@@ -18,6 +18,11 @@
           <p>状态: {{ order.status }}</p>
           <p>类型: {{ order.type }}</p>
           <p>总价: {{ order.total_price }}</p>
+          <el-button
+            v-if="order.status === 'preparing'"
+            type="success"
+            @click="confirmOrder(order.id)"
+          >确认订单</el-button>
         </li>
       </ul>
     </div>
@@ -27,6 +32,7 @@
 <script>
 import axios from 'axios';
 import MerchantLogoutButton from "@/components/MerchantLogoutButton.vue";
+import { ElMessage} from "element-plus";
 
 export default {
   components: {MerchantLogoutButton,},
@@ -39,23 +45,46 @@ export default {
   },
   created() {
     this.fetchOrderHistory();
-
   },
   methods: {
     fetchOrderHistory() {
       const token = localStorage.getItem('token'); // 从本地存储中获取token
       console.log('Token:', token);
-      axios.get('http://127.0.0.1:8000/api/orders/order_history')
-          .then(response => {
-            console.log('Response data:', response.data); // 调试：打印响应数据
-            this.orders = response.data;
-            this.loading = false;
-          })
-          .catch(error => {
-            console.error('获取订单历史失败:', error);
-            this.error = '获取订单历史失败';
-            this.loading = false;
-          });
+      axios.get('http://127.0.0.1:8000/api/merchants/orders/',{
+        headers: {
+          'Authorization': `Token ${token}`
+        }
+      })
+      .then(response => {
+        console.log('Response data:', response.data); // 调试：打印响应数据
+        this.orders = response.data;
+        this.loading = false;
+      })
+      .catch(error => {
+        console.error('获取订单历史失败:', error);
+        this.error = '获取订单历史失败';
+        this.loading = false;
+      });
+    },
+    confirmOrder(orderId){
+      const token = localStorage.getItem('token');
+      axios.put(`http://127.0.0.1:8000/api/merchants/confirm_order/${orderId}/`,{},{
+        headers: {
+          'Authorization': `Token ${token}`
+        }
+      })
+      .then(response => {
+        console.log('Response data:', response.data);
+        ElMessage({
+          message: '订单已确认！',
+          type: 'success',
+        });
+        this.fetchOrderHistory();
+      })
+      .catch(error => {
+        console.error('确认订单失败：', error);
+        ElMessage.error('确认订单失败！');
+      });
     }
   }
 };

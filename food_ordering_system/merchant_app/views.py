@@ -13,6 +13,7 @@ from django.contrib.auth.hashers import check_password
 from dish_app.models import Dish, PriceHistory, Review
 from dish_app.serializers import DishSerializer, PriceHistorySerializer
 from order_app.models import Order
+from order_app.serializers import OrderSerializer
 
 
 @api_view(['GET'])
@@ -565,4 +566,58 @@ def search_dishes(request, merchant_id):
     else:
         dishes = Dish.objects.filter(merchant_id=merchant_id)
     serializer = DishSummarySerializer(dishes, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([MerchantTokenAuthentication])
+def merchant_orders(request):
+    """
+    获取商家的订单列表。
+
+    参数:
+      - 名称: status
+        描述: 订单状态 (可选)
+        必需: 否
+        类型: 字符串
+
+    响应:
+      200:
+        描述: 订单列表
+        示例:
+          [
+            {
+              "id": 1,
+              "user": 1,
+              "merchant": 1,
+              "status": "preparing",
+              "order_type": "online",
+              "order_dining_status": "dines_in",
+              "total_price": 100.99,
+              "created_at": "2024-06-07T12:00:00Z",
+              "updated_at": "2024-06-07T12:00:00Z",
+              "details": [
+                {
+                  "id": 1,
+                  "order": 1,
+                  "dish": 1,
+                  "quantity": 2,
+                  "price": 20.99
+                }
+              ]
+            }
+          ]
+    """
+    token = request.auth
+    merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
+    merchant = merchant_login_instance.merchant
+
+    status_filter = request.GET.get('status')
+    if status_filter:
+        orders = Order.objects.filter(merchant=merchant, status=status_filter)
+    else:
+        orders = Order.objects.filter(merchant=merchant)
+
+    serializer = OrderSerializer(orders, many=True)
     return Response(serializer.data)

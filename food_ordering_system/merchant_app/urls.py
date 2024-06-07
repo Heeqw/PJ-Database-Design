@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import search_merchants, merchant_detail, manage_merchant, merchant_info, create_merchant, merchant_logout, \
     merchant_login, dish_list, create_dish, update_dish, delete_dish, update_dish_price, set_featured_dish, \
-    confirm_order, merchant_reviews, search_dishes
+    confirm_order, merchant_reviews, search_dishes, merchant_orders
 
 urlpatterns = [
     path('search/', search_merchants, name='search_merchants'),
@@ -20,4 +20,6 @@ urlpatterns = [
     path('confirm_order/<int:order_id>/', confirm_order, name='confirm_order'),
     path('<int:merchant_id>/reviews/', merchant_reviews, name='merchant_reviews'),
     path('<int:merchant_id>/dishes/search/', search_dishes, name='search-dishes'),
+    path('orders/', merchant_orders, name='merchant-orders'),
+
 ]

@@ -36,6 +36,7 @@
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
 import UserLogoutButton from "@/components/UserLogoutButton.vue";
+import dayjs from 'dayjs'
 
 export default {
   components: {UserLogoutButton},
@@ -92,8 +93,8 @@ export default {
         order_type: this.orderType,
         quantities: this.quantities,
         order_dining_status: this.orderDiningStatus,
-        date: this.reservationDate,
-        time: this.reservationTime
+        date: this.orderDiningStatus === 'reservation' ? dayjs(this.reservationDate).format('YYYY-MM-DD') : null,
+        time: this.orderDiningStatus === 'reservation' ? dayjs(this.reservationTime).format('HH:mm:ss') : null
       };
 
       axios.post('http://127.0.0.1:8000/api/orders/place_order/', requestData)
