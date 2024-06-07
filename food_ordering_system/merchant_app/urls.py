@@ -19,5 +19,5 @@ urlpatterns = [
     path('set_featured_dish/', set_featured_dish, name='set_featured_dish'),
     path('confirm_order/<int:order_id>/', confirm_order, name='confirm_order'),
     path('merchant/<int:merchant_id>/reviews/', merchant_reviews, name='merchant_reviews'),
-path('merchants/<int:merchant_id>/dishes/search/', search_dishes, name='search-dishes'),
+    path('merchants/<int:merchant_id>/dishes/search/', search_dishes, name='search-dishes'),
 ]
