@@ -26,8 +26,8 @@ def message_list(request):
             }
           ]
     """
-    messages = Notification.objects.filter(user=request.user)
-    serializer = NotificationSerializer(messages, many=True)
+    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+    serializer = NotificationSerializer(notifications, many=True)
     return Response(serializer.data)
 
 

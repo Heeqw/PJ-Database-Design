@@ -7,7 +7,7 @@ from django.contrib.auth.hashers import make_password
 class MerchantSerializer(serializers.ModelSerializer):
     dishes = DishSerializer(many=True, read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
-    featured_dish = DishSerializer(many=True, read_only=True)
+    featured_dish = DishSerializer(read_only=True)
 
     class Meta:
         model = Merchant

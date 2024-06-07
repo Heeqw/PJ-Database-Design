@@ -6,50 +6,10 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from order_app.models import OrderDetail
 from user_app.models import FavoriteDish
 from .models import Dish, Review, PriceHistory
-from .serializers import DishSerializer, ReviewSerializer, AllergenSerializer, PriceHistorySerializer
+from .serializers import DishSerializer, ReviewSerializer, AllergenSerializer, PriceHistorySerializer, \
+    DishDetailSerializer
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, Sum
-
-
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def search_dishes(request, merchant_id):
-    """
-    搜索指定商家的菜品。
-
-    参数:
-      - 名称: merchant_id
-        描述: 商家的ID
-        必需: 是
-        类型: 整数
-      - 名称: q
-        描述: 搜索关键字
-        必需: 否
-        类型: 字符串
-
-    响应:
-      200:
-        描述: 菜品列表
-        示例:
-          [
-            {
-              "id": 1,
-              "name": "示例菜品",
-              "merchant_id": 1,
-              "price": 10.99,
-              "description": "美味的示例菜品",
-              "created_at": "2024-06-07T12:00:00Z",
-              "updated_at": "2024-06-07T12:00:00Z"
-            }
-          ]
-    """
-    query = request.GET.get('q')
-    if query:
-        dishes = Dish.objects.filter(merchant_id=merchant_id, name__icontains=query)
-    else:
-        dishes = Dish.objects.filter(merchant_id=merchant_id)
-    serializer = DishSerializer(dishes, many=True)
-    return Response(serializer.data)
 
 
 @api_view(['GET'])
@@ -71,15 +31,23 @@ def dish_detail(request, dish_id):
           {
             "id": 1,
             "name": "示例菜品",
-            "merchant_id": 1,
-            "price": 10.99,
             "description": "美味的示例菜品",
-            "created_at": "2024-06-07T12:00:00Z",
-            "updated_at": "2024-06-07T12:00:00Z"
+            "price": 10.99,
+            "image_url": "http://example.com/image.jpg",
+            "ingredients": "示例成分",
+            "nutrition_info": "示例营养信息",
+            "allergens": [{"name": "花生"}],
+            "reviews": [
+              {
+                "id": 1,
+                "user": "username",
+                "rating": 5,
+                "comment": "很好吃",
+                "created_at": "2024-06-07T12:00:00Z"
           }
     """
     dish = get_object_or_404(Dish, pk=dish_id)
-    serializer = DishSerializer(dish)
+    serializer = DishDetailSerializer(dish)
     return Response(serializer.data)
 
 

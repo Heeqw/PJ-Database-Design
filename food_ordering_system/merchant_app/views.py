@@ -4,11 +4,13 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.shortcuts import get_object_or_404
 from django.db import transaction
+
+from common.serializers import ReviewSerializer, DishSummarySerializer
 from merchant_app.models import Merchant, MerchantLogin, MerchantToken
 from merchant_app.serializers import MerchantSerializer, MerchantLoginSerializer
 from authentication_app.authentication import MerchantTokenAuthentication
 from django.contrib.auth.hashers import check_password
-from dish_app.models import Dish, PriceHistory
+from dish_app.models import Dish, PriceHistory, Review
 from dish_app.serializers import DishSerializer, PriceHistorySerializer
 from order_app.models import Order
 
@@ -35,6 +37,11 @@ def search_merchants(request):
               "name": "示例商家",
               "address": "示例地址",
               "phone": "123456789"
+              "featured_dish": {
+                "id": 1,
+                "name": "示例菜品",
+                "price": 10.99
+              }
             }
           ]
     """
@@ -422,7 +429,7 @@ def update_dish_price(request, dish_id):
 @authentication_classes([MerchantTokenAuthentication])
 def set_featured_dish(request):
     """
-    设置特色菜品。
+    设置主打菜品。
 
     参数:
       - 名称: dish_id
@@ -432,7 +439,7 @@ def set_featured_dish(request):
 
     响应:
       200:
-        描述: 特色菜品已更新
+        描述: 主打菜品已更新
       400:
         描述: 无效的输入
       404:
@@ -487,3 +494,75 @@ def confirm_order(request, order_id):
     order.status = 'completed'
     order.save()
     return Response({'message': 'Order status updated to completed'}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def merchant_reviews(request, merchant_id):
+    """
+    获取指定商户的所有菜品的评价和评分。
+
+    参数:
+      - 名称: merchant_id
+        描述: 商户的ID
+        必需: 是
+        类型: 整数
+
+    响应:
+      200:
+        描述: 商户所有菜品的评价和评分
+        示例:
+          [
+            {
+              "id": 1,
+              "user": "username",
+              "dish": "菜品名称",
+              "rating": 5,
+              "comment": "很好吃",
+              "created_at": "2024-06-07T12:00:00Z"
+            }
+          ]
+    """
+    merchant = get_object_or_404(Merchant, id=merchant_id)
+    dishes = Dish.objects.filter(merchant=merchant)
+    reviews = Review.objects.filter(dish__in=dishes)
+    serializer = ReviewSerializer(reviews, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def search_dishes(request, merchant_id):
+    """
+    在指定商户内搜索菜品。
+
+    参数:
+      - 名称: merchant_id
+        描述: 商户的ID
+        必需: 是
+        类型: 整数
+      - 名称: q
+        描述: 搜索关键字
+        必需: 否
+        类型: 字符串
+
+    响应:
+      200:
+        描述: 搜索结果
+        示例:
+          [
+            {
+              "id": 1,
+              "name": "示例菜品",
+              "price": 10.99,
+              "image_url": "http://example.com/image.jpg"
+            }
+          ]
+    """
+    query = request.GET.get('q')
+    if query:
+        dishes = Dish.objects.filter(merchant_id=merchant_id, name__icontains=query)
+    else:
+        dishes = Dish.objects.filter(merchant_id=merchant_id)
+    serializer = DishSummarySerializer(dishes, many=True)
+    return Response(serializer.data)

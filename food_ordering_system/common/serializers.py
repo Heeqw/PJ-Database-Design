@@ -16,9 +16,15 @@ class DishSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class DishSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dish
+        fields = ['id', 'name', 'price', 'image_url']
+
+
 class ReviewSerializer(serializers.ModelSerializer):
     user = serializers.ReadOnlyField(source='user.username')
-    dish = DishSerializer(read_only=True)
+    dish = DishSummarySerializer(read_only=True)
 
     class Meta:
         model = Review
