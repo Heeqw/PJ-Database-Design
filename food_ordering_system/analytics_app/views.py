@@ -39,13 +39,8 @@ def dish_statistics(request, merchant_id):
               "avg_rating": 4.5,
               "total_orders": 120,
               "top_customer": {
-                "user": {
-                  "id": 1,
-                  "username": "示例用户",
-                  "email": "user@example.com",
-                  "first_name": "示例",
-                  "last_name": "用户"
-                },
+                "user_id": 1,
+                "username": "示例用户",
                 "count": 50
               }
             }
@@ -59,13 +54,20 @@ def dish_statistics(request, merchant_id):
         total_orders = OrderDetail.objects.filter(dish=dish).count()
         top_customer = OrderDetail.objects.filter(dish=dish).values('order__user').annotate(count=Count('id')).order_by(
             '-count').first()
+        # 获取用户的用户名
+        top_customer_username = User.objects.get(id=top_customer['order__user']).username
         data.append({
             'dish': DishSerializer(dish).data,
             'avg_rating': avg_rating,
             'total_orders': total_orders,
-            'top_customer': top_customer
+            'top_customer': {
+                'user_id': top_customer['order__user'],
+                'username': top_customer_username,
+                'count': top_customer['count']
+            }
         })
     return Response(data)
+
 
 
 @api_view(['GET'])

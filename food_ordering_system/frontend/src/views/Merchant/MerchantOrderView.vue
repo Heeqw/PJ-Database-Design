@@ -13,16 +13,21 @@
       <h3>订单列表:</h3>
       <ul>
         <li v-for="order in orders" :key="order.id">
-          <p>用户: {{ order.user }}</p>
-          <p>订单时间: {{ order.date }}</p>
-          <p>状态: {{ order.status }}</p>
-          <p>类型: {{ order.type }}</p>
-          <p>总价: {{ order.total_price }}</p>
+          <div class="order-item">
+            <router-link :to="{ name: 'MerchantOrderDetail', params: { id: order.id } }" class="order-link">
+              <p>用户: {{ order.user }}</p>
+              <p>订单时间: {{ order.date }}</p>
+              <p>状态: {{ order.status }}</p>
+              <p>类型: {{ order.type }}</p>
+              <p>总价: {{ order.total_price }}</p>
+            </router-link>
+
+          </div>
           <el-button
             v-if="order.status === 'preparing'"
             type="success"
             @click="confirmOrder(order.id)"
-          >确认订单</el-button>
+        >确认订单</el-button>
         </li>
       </ul>
     </div>
@@ -48,23 +53,21 @@ export default {
   },
   methods: {
     fetchOrderHistory() {
-      const token = localStorage.getItem('token'); // 从本地存储中获取token
-      console.log('Token:', token);
+      const token = localStorage.getItem('token');
       axios.get('http://127.0.0.1:8000/api/merchants/orders/',{
         headers: {
           'Authorization': `Token ${token}`
         }
       })
-      .then(response => {
-        console.log('Response data:', response.data); // 调试：打印响应数据
-        this.orders = response.data;
-        this.loading = false;
-      })
-      .catch(error => {
-        console.error('获取订单历史失败:', error);
-        this.error = '获取订单历史失败';
-        this.loading = false;
-      });
+          .then(response => {
+            this.orders = response.data;
+            this.loading = false;
+          })
+          .catch(error => {
+            console.error('获取订单历史失败:', error);
+            this.error = '获取订单历史失败';
+            this.loading = false;
+          });
     },
     confirmOrder(orderId){
       const token = localStorage.getItem('token');
@@ -73,18 +76,18 @@ export default {
           'Authorization': `Token ${token}`
         }
       })
-      .then(response => {
-        console.log('Response data:', response.data);
-        ElMessage({
-          message: '订单已确认！',
-          type: 'success',
-        });
-        this.fetchOrderHistory();
-      })
-      .catch(error => {
-        console.error('确认订单失败：', error);
-        ElMessage.error('确认订单失败！');
-      });
+          .then(response => {
+            console.log('Response data:', response.data);
+            ElMessage({
+              message: '订单已确认！',
+              type: 'success',
+            });
+            this.fetchOrderHistory();
+          })
+          .catch(error => {
+            console.error('确认订单失败：', error);
+            ElMessage.error('确认订单失败！');
+          });
     }
   }
 };
@@ -107,5 +110,25 @@ li {
 
 p {
   margin: 0.2rem 0;
+}
+
+.order-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.order-item p {
+  margin: 0.2rem 0;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-item .order-link {
+  flex-grow: 1;
 }
 </style>

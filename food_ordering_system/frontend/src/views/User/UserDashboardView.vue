@@ -4,9 +4,10 @@
     <h1>Welcome, {{ username }}</h1> <!-- 显示用户名 -->
     <p>This is your dashboard!</p>
     <el-button type="primary" @click="viewOrders">查看订单</el-button>
-    <el-button type="primary" @click="viewMessages">查看信息</el-button>
+    <el-button type="primary" @click="viewMessages">查看通知</el-button>
     <el-button type="primary" @click="searchMerchants">搜索商家</el-button>
     <el-button type="primary" @click="goToProfile">个人信息</el-button>
+    <el-button type="primary" @click="goToFavorites">收藏内容</el-button>
   </div>
 </template>
 
@@ -40,6 +41,9 @@ export default {
     searchMerchants() {
       this.$router.push({ name: 'MerchantSearch' });
     },
+    goToFavorites() {
+      this.$router.push({ name: 'UserFavorites' });
+    }
   }
 };
 </script>

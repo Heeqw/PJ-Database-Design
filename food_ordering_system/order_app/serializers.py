@@ -1,12 +1,14 @@
 from rest_framework import serializers
 from .models import Order, OrderDetail
 from dish_app.models import Dish
-
+from dish_app.serializers import DishDetailSerializer
 
 class OrderDetailSerializer(serializers.ModelSerializer):
+    dish = DishDetailSerializer()
+
     class Meta:
         model = OrderDetail
-        fields = '__all__'
+        fields = ['id', 'order', 'dish', 'quantity', 'price']
 
 
 class OrderSerializer(serializers.ModelSerializer):

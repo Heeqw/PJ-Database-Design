@@ -12,24 +12,30 @@
     <div v-if="orders.length > 0">
       <h3>订单列表:</h3>
       <ul>
-        <li v-for="order in orders" :key="order.id">
-          <p>订单时间: {{ order.date }}</p>
-          <p>状态: {{ order.status }}</p>
-          <p>类型: {{ order.type }}</p>
-          <p>总价: {{ order.total_price }}</p>
-          <p>商家: {{ order.merchant }}</p>
+        <li v-for="order in orders" :key="order.id" class="order-item">
+          <router-link :to="{ name: 'UserOrderDetail', params: { id: order.id } }" class="order-link">
+            <div>
+              <p>订单id: {{ order.id }}</p>
+              <p>订单时间: {{ order.date }}</p>
+              <p>状态: {{ order.status }}</p>
+              <p>类型: {{ order.type }}</p>
+              <p>总价: {{ order.total_price }}</p>
+              <p>商家: {{ order.merchant }}</p>
+            </div>
+          </router-link>
         </li>
       </ul>
     </div>
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 import UserLogoutButton from "@/components/UserLogoutButton.vue";
 
 export default {
-  components: {UserLogoutButton},
+  components: { UserLogoutButton },
   data() {
     return {
       orders: [],
@@ -39,13 +45,16 @@ export default {
   },
   created() {
     this.fetchOrderHistory();
-
   },
   methods: {
     fetchOrderHistory() {
       const token = localStorage.getItem('token'); // 从本地存储中获取token
       console.log('Token:', token);
-      axios.get('http://127.0.0.1:8000/api/orders/order_history')
+      axios.get('http://127.0.0.1:8000/api/orders/order_history', {
+        headers: {
+          'Authorization': `Token ${token}`
+        }
+      })
           .then(response => {
             console.log('Response data:', response.data); // 调试：打印响应数据
             this.orders = response.data;
@@ -76,7 +85,13 @@ li {
   border: 1px solid #ddd;
 }
 
-p {
+.order-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.order-item p {
   margin: 0.2rem 0;
 }
 </style>

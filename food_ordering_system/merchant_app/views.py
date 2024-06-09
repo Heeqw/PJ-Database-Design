@@ -14,6 +14,7 @@ from dish_app.models import Dish, PriceHistory, Review
 from dish_app.serializers import DishSerializer, PriceHistorySerializer
 from order_app.models import Order
 from order_app.serializers import OrderSerializer
+from message_app.models import Notification
 
 
 @api_view(['GET'])
@@ -494,8 +495,10 @@ def confirm_order(request, order_id):
 
     order.status = 'completed'
     order.save()
-    return Response({'message': 'Order status updated to completed'}, status=status.HTTP_200_OK)
+    # 发送通知给用户
+    Notification.objects.create(user=order.user, message=f"Your order {order.id} has been completed.")
 
+    return Response({'message': 'Order status updated to completed'}, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])

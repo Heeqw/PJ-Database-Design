@@ -4,11 +4,13 @@
     <h2>点单页面</h2>
 
     <!-- 选择就餐状态 -->
-    <label for="dining-status">选择就餐状态: </label>
-    <el-select v-model="orderDiningStatus" style="width: 200px" placeholder="请选择">
-      <el-option label="堂食" value="dines_in"></el-option>
-      <el-option label="预定" value="reservation"></el-option>
-    </el-select>
+    <div>
+      <label for="dining-status">选择就餐状态: </label>
+      <el-select v-model="orderDiningStatus" style="width: 200px" placeholder="请选择">
+        <el-option label="立取" value="dines_in"></el-option>
+        <el-option label="预定" value="reservation"></el-option>
+      </el-select>
+    </div>
 
     <!-- 预定日期和时间 -->
     <div v-if="orderDiningStatus === 'reservation'">
@@ -39,7 +41,7 @@ import UserLogoutButton from "@/components/UserLogoutButton.vue";
 import dayjs from 'dayjs'
 
 export default {
-  components: {UserLogoutButton},
+  components: { UserLogoutButton },
   data() {
     return {
       dishes: [],         // 菜品列表
@@ -64,10 +66,12 @@ export default {
       axios.get(`http://127.0.0.1:8000/api/merchants/${this.merchantId}/dishes/search/`)
           .then(response => {
             this.dishes = response.data;
-            // 初始化菜品数量为1
+            // 初始化菜品数量为0
+            const quantities = {};
             this.dishes.forEach(dish => {
-              this.$set(this.quantities, dish.id, 1);
+              quantities[dish.id] = 0;
             });
+            this.quantities = quantities;
           })
           .catch(error => {
             console.error('获取菜品列表失败:', error);

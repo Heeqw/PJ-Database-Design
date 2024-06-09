@@ -16,13 +16,14 @@
       <div v-else>
         <ul>
           <li v-for="dish in dishes" :key="dish.id">
-            <router-link :to="{ name: 'DishDetail', params: { id: dish.id } }">
+            <router-link :to="{ name: 'MerchantDishDetail', params: { id: dish.id } }">
               <p>名称：{{ dish.name }}</p>
               <p>编号：{{ dish.id }}</p>
               <p>价格：{{ dish.price }}</p>
               <p>类别：{{ dish.category }}</p>
             </router-link>
-            <button @click="deleteDish(dish.id)">删除</button>
+            <el-button type=danger @click="deleteDish(dish.id)">删除</el-button>
+            <el-button type=success @click="setFeaturedDish(dish.id)">设置为主打菜</el-button> <!-- 新添加的按钮 -->
           </li>
         </ul>
       </div>
@@ -103,6 +104,33 @@ export default {
             console.error('删除菜品失败:', error);
             alert('删除菜品失败');
           });
+    },
+    // 设置主打菜品
+    setFeaturedDish(dishId) {
+      const token = localStorage.getItem('token'); // 假设 token 存储在本地存储中
+      fetch(`http://127.0.0.1:8000/api/merchants/set_featured_dish/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`
+        },
+        body: JSON.stringify({
+          dish_id: dishId
+        })
+      })
+          .then(response => {
+            if (response.ok) {
+              alert('主打菜品设置成功');
+              // 刷新菜品列表
+              this.fetchMerchantDishes();
+            } else {
+              throw new Error('设置主打菜品失败！');
+            }
+          })
+          .catch(error => {
+            console.error('设置主打菜品失败:', error);
+            alert('设置主打菜品失败');
+          });
     }
   }
 };
@@ -130,15 +158,6 @@ li a {
   width: 100%;
   height: 100%;
 }
-button {
-  margin-top: 10px;
-  color: #fff;
-  background-color: #f56c6c;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
-}
-button:hover {
-  background-color: #d9534f;
-}
+
 </style>
+
