@@ -1,7 +1,10 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
+
+from dish_app.models import Dish
 from .models import User, FavoriteDish, FavoriteMerchant
 from .serializers import UserSerializer, FavoriteDishSerializer, FavoriteMerchantSerializer, OrderSerializer
 from merchant_app.models import Merchant
@@ -173,6 +176,39 @@ def favorite_merchants(request):
     return Response(serializer.data)
 
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_favorite_merchant(request):
+    """
+    添加用户收藏的商家。
+
+    请求:
+      - 名称: merchant_id
+        描述: 商家ID
+        必需: 是
+        类型: 整数
+
+    响应:
+      201:
+        描述: 收藏成功
+        示例:
+          {
+            "id": 1,
+            "user": 1,
+            "merchant": 1
+          }
+      400:
+        描述: 无效的输入或商家已在收藏列表中
+    """
+    merchant_id = request.data.get('merchant_id')
+    merchant = get_object_or_404(Merchant, id=merchant_id)
+    favorite, created = FavoriteMerchant.objects.get_or_create(user=request.user, merchant=merchant)
+    if not created:
+        return Response({'detail': 'This merchant is already in favorites.'}, status=status.HTTP_400_BAD_REQUEST)
+    serializer = FavoriteMerchantSerializer(favorite)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def favorite_dishes(request):
@@ -194,6 +230,33 @@ def favorite_dishes(request):
     favorites = FavoriteDish.objects.filter(user=request.user)
     serializer = FavoriteDishSerializer(favorites, many=True)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_favorite_dish(request):
+    """
+    添加用户收藏的菜品。
+
+    响应:
+      200:
+        描述: 用户收藏的菜品列表
+        示例:
+          [
+            {
+              "id": 1,
+              "user": 1,
+              "dish": 1
+            }
+          ]
+    """
+    dish_id = request.data.get('dish_id')
+    dish = get_object_or_404(Dish, id=dish_id)
+    favorite, created = FavoriteDish.objects.get_or_create(user=request.user, dish=dish)
+    if not created:
+        return Response({'detail': 'This dish is already in favorites.'}, status=status.HTTP_400_BAD_REQUEST)
+    serializer = FavoriteDishSerializer(favorite)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
