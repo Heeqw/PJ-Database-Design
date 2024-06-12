@@ -15,7 +15,7 @@
       <h3>搜索结果:</h3>
       <ul>
         <li v-for="dish in dishes" :key="dish.id">
-          <router-link :to="{ name: 'DishDetail', params: { id: dish.id } }">
+          <router-link :to="{ name: 'UserDishDetail', params: { id: dish.id } }">
           {{ dish.name }} - {{ dish.price }}
           </router-link>
         </li>
