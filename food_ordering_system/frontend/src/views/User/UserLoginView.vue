@@ -38,7 +38,7 @@ export default {
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(user));
             localStorage.setItem('username', user.username);
-            this.$router.push(`/user_dashboard/${user.id}`);
+            this.$router.push(`/users/dashboard/${user.id}`);
           })
           .catch(error => {
             // 处理登录失败的响应

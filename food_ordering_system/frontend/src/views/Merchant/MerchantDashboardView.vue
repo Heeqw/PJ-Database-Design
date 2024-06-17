@@ -11,9 +11,12 @@
 <script>
 import MerchantLogoutButton from "@/components/MerchantLogoutButton.vue";
 
+
 export default {
   name: 'MerchantDashboardView',
-  components: {MerchantLogoutButton},
+  components: {
+    MerchantLogoutButton,
+  },
   data() {
     return {
       merchantName: '',

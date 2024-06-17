@@ -41,7 +41,7 @@ export default {
             localStorage.setItem('merchantAddress', merchant.address);
             localStorage.setItem('merchantPhone', merchant.phone);
             // 导航到商家的仪表板或其他页面
-            this.$router.push(`/merchant_dashboard/${merchant.id}`);
+            this.$router.push(`/merchants/dashboard/${merchant.id}`);
           })
           .catch(error => {
             // 处理登录失败的响应
