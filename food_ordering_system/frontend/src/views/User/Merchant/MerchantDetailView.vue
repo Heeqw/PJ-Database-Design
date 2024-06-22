@@ -19,7 +19,6 @@
               <p>Name: {{ dish.name }}</p>
               <p>Id: {{ dish.id }}</p>
               <p>Price: {{ dish.price }}</p>
-              <p>Category: {{ dish.category }}</p>
             </router-link>
             <p>收藏量: {{ dish.favorite_count }}</p>
             <p>线上销量: {{ dish.online_sales }}</p>

@@ -15,4 +15,4 @@ class DishDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Dish
-        fields = ['id', 'name', 'description', 'price', 'image_url', 'ingredients', 'nutrition_info', 'allergens', 'reviews']
+        fields = ['id', 'name', 'description', 'price', 'image_url', 'ingredients', 'nutrition_info', 'allergens', 'reviews', 'category']

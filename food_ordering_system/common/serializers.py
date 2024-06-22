@@ -14,6 +14,13 @@ class DishSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dish
         fields = '__all__'
+        extra_kwargs = {
+            'description': {'required': False, 'allow_blank': True},
+            'image_url': {'required': False, 'allow_blank': True},
+            'ingredients': {'required': False, 'allow_blank': True},
+            'nutrition_info': {'required': False, 'allow_blank': True},
+            'allergens': {'required': False}
+        }
 
 
 class DishSummarySerializer(serializers.ModelSerializer):

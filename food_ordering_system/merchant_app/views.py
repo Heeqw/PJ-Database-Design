@@ -208,7 +208,7 @@ def merchant_logout(request):
 @authentication_classes([MerchantTokenAuthentication])
 def manage_merchant(request):
     """
-    获取或更新商家信息。
+    获取或更新商家信息(地址、名称、联系方式)。
 
     响应:
       200:
@@ -290,40 +290,6 @@ def dish_list(request):
     dishes = Dish.objects.filter(merchant=merchant_login_instance.merchant)
     serializer = DishSerializer(dishes, many=True)
     return Response(serializer.data)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-@authentication_classes([MerchantTokenAuthentication])
-def create_dish(request):
-    """
-    创建新菜品。
-
-    响应:
-      201:
-        描述: 菜品已创建
-        示例:
-          {
-            "id": 1,
-            "name": "示例菜品",
-            "merchant_id": 1,
-            "price": 10.99,
-            "description": "美味的示例菜品",
-            "created_at": "2024-06-07T12:00:00Z",
-            "updated_at": "2024-06-07T12:00:00Z"
-          }
-      400:
-        描述: 无效的输入
-    """
-    token = request.auth
-    merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
-    data = request.data
-    data['merchant'] = merchant_login_instance.merchant.id
-    serializer = DishSerializer(data=data)
-    if serializer.is_valid():
-        dish = serializer.save()
-        return Response(DishSerializer(dish).data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['PUT'])
@@ -624,3 +590,41 @@ def merchant_orders(request):
 
     serializer = OrderSerializer(orders, many=True)
     return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([MerchantTokenAuthentication])
+def create_dish(request):
+    """
+    创建新菜品。
+
+    响应:
+      201:
+        描述: 菜品已创建
+        示例:
+          {
+            "id": 1,
+            "name": "示例菜品",
+            "merchant_id": 1,
+            "price": 10.99,
+            "description": "美味的示例菜品",
+            "category": "主菜",
+            "image_url": "http://example.com/image.jpg",
+            "ingredients": "示例成分",
+            "nutrition_info": "示例营养信息",
+            "allergens": [1, 2]
+          }
+      400:
+        描述: 无效的输入
+    """
+    token = request.auth
+    merchant_login_instance = get_object_or_404(MerchantLogin, auth_token=token)
+    data = request.data.copy()  # 创建数据副本
+    data['merchant'] = merchant_login_instance.merchant.id  # 添加商家 ID
+
+    serializer = DishSerializer(data=data)
+    if serializer.is_valid():
+        dish = serializer.save()
+        return Response(DishSerializer(dish).data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

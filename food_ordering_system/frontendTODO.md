@@ -1,0 +1,4 @@
+- DishSearchView 中增加菜品图片显示
+- 最高订单用户是否需要显示信息？ 只显示最高订单次数如何
+- MerchantDetailView增加 **创建菜品**部分
+- 进阶部分

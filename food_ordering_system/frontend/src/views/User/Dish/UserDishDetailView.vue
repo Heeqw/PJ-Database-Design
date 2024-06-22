@@ -5,8 +5,18 @@
     <div v-if="loading">Loading...</div>
     <div v-else>
       <p>Name: {{ dish.name }}</p>
+      <p>Description: {{ dish.description }}</p>
       <p>Price: {{ dish.price }}</p>
+      <p>Category: {{ dish.category }}</p>
       <p><img :src="dish.image_url" alt="Dish Image"></p>
+      <p>Ingredients: {{ dish.ingredients }}</p>
+      <p>Nutrition Information: {{ dish.nutrition_info }}</p>
+      <div>
+        <h3>Allergens:</h3>
+        <ul>
+          <li v-for="allergen in dish.allergens" :key="allergen.name">{{ allergen.name }}</li>
+        </ul>
+      </div>
       <h2>Price History</h2>
       <div v-if="priceHistory.length === 0">No price history available.</div>
       <ul v-else>

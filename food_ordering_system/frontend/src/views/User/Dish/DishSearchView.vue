@@ -17,6 +17,7 @@
         <li v-for="dish in dishes" :key="dish.id">
           <router-link :to="{ name: 'UserDishDetail', params: { id: dish.id } }">
           {{ dish.name }} - {{ dish.price }}
+          <!--   还需要图片老师         -->
           </router-link>
         </li>
       </ul>
