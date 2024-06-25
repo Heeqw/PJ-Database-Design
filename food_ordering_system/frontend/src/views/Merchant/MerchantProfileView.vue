@@ -23,7 +23,6 @@
               <p>名称：{{ dish.name }}</p>
               <p>编号：{{ dish.id }}</p>
               <p>价格：{{ dish.price }}</p>
-              <p>类别：{{ dish.category }}</p>
             </router-link>
             <el-button type=danger @click="deleteDish(dish.id)">删除</el-button>
             <el-button type=success @click="setFeaturedDish(dish.id)">设置为主打菜</el-button>

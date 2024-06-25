@@ -5,7 +5,6 @@
     <p>This is your dashboard!</p>
     <el-button type="primary" @click="viewOrders">查看订单</el-button>
     <el-button type="primary" @click="viewProfile">商家信息</el-button>
-    <el-button type="primary" @click="viewLoyal">忠实顾客查询</el-button>
   </div>
 </template>
 
@@ -35,9 +34,7 @@ export default {
     viewProfile() {
       this.$router.push({ name: 'MerchantProfile', params: { id: localStorage.getItem('merchantId') } });
     },
-    viewLoyal() {
-      this.$router.push({ name: 'MerchantLoyalCustomers', params: { merchantId: this.merchantId } });
-    },
+
   }
 };
 </script>

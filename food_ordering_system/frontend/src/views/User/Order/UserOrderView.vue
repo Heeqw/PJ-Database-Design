@@ -14,13 +14,12 @@
     <div v-if="orders.length > 0">
       <h3>订单列表:</h3>
       <ul>
-        <li v-for=" order in paginatedOrders" :key="order.id" class="order-item">
+        <li v-for="order in paginatedOrders" :key="order.id" class="order-item">
           <router-link :to="{ name: 'UserOrderDetail', params: { id: order.id } }" class="order-link">
             <div>
               <p>订单id: {{ order.id }}</p>
-              <p>订单时间: {{ order.date }}</p>
+              <p>预定时间: {{ order.date }}</p>
               <p>状态: {{ order.status }}</p>
-              <p>类型: {{ order.type }}</p>
               <p>总价: {{ order.total_price }}</p>
               <p>商家: {{ order.merchant }}</p>
             </div>
@@ -58,7 +57,7 @@ export default {
   methods: {
     fetchOrderHistory() {
       const token = localStorage.getItem('token');
-      axios.get('http://127.0.0.1:8000/api/orders/order_history', {
+      axios.get('http://127.0.0.1:8000/api/orders/order_history/?ordering=-id', {
         headers: {
           'Authorization': `Token ${token}`
         }
@@ -88,6 +87,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 ul {

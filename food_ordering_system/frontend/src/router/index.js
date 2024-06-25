@@ -14,14 +14,13 @@ import MerchantDetailView from '@/views/User/Merchant/MerchantDetailView.vue';
 import MerchantProfileView from '@/views/Merchant/MerchantProfileView.vue';
 import MerchantLoginView from '@/views/Merchant/MerchantLoginView.vue';
 import MerchantOrderView from '@/views/Merchant/MerchantOrderView.vue';
-import MerchantOrderDetailView from '@/views/Merchant/MerchantOrderDetailView.vue';
 import DishSearchView from '@/views/User/Dish/DishSearchView.vue';
 import UserDishDetailView from '@/views/User/Dish/UserDishDetailView.vue';
 import MerchantDishDetailView from '@/views/Merchant/MerchantDishDetailView.vue';
 import FavoriteMerchantView from "@/views/User/Merchant/FavoriteMerchantView.vue";
 import FavoriteDishView from "@/views/User/Dish/FavoriteDishView.vue";
 import MerchantDishCreateView from "@/views/Merchant/MerchantDishCreateView.vue";
-import MerchantLoyalCustomersView from "@/views/Merchant/MerchantLoyalCustomersView.vue";
+import UserMerchantLoyalCustomersView from "@/views/User/Merchant/UserMerchantLoyalCustomersView.vue";
 
 /* import RegisterView from '@/views/RegisterView.vue';
 import AnalyticsView from '@/views/AnalyticsView.vue'; */
@@ -44,12 +43,11 @@ const routes = [
   { path: '/users/merchants/:id', name: 'MerchantDetail', component: MerchantDetailView, meta: { breadcrumb:'商家详情' } },
   { path: '/merchants/profile/:id', name: 'MerchantProfile', component: MerchantProfileView, meta: { breadcrumb:'商家资料' } },
   { path: '/merchants/order', name: 'MerchantOrder', component: MerchantOrderView, meta: { breadcrumb:'商家订单' } },
-  { path: '/merchants/order/detail/:id', name: 'MerchantOrderDetail', component: MerchantOrderDetailView, meta: { breadcrumb:'商家订单详情' } },
   { path: '/users/dishes/search/:id', name: 'DishSearch', component: DishSearchView, meta: { breadcrumb:'菜品搜索' } },
   { path: '/users/dishes/:id', name: 'UserDishDetail', component: UserDishDetailView, meta: { breadcrumb:'用户菜品详情' } },
   { path: '/merchants/dishes/:id', name: 'MerchantDishDetail', component: MerchantDishDetailView, meta: { breadcrumb:'商家菜品详情' } },
   { path: '/merchants/dishes/create', name: 'MerchantDishCreate', component: MerchantDishCreateView, meta: { breadcrumb:'商家添加菜品' } },
-  { path: '/merchants/analytics', name: 'MerchantLoyalCustomers', component: MerchantLoyalCustomersView , meta: { breadcrumb:'商家忠实顾客' } }
+  { path: '/users/merchants/analytics/:id', name: 'UserMerchantLoyalCustomers', component: UserMerchantLoyalCustomersView , meta: { breadcrumb:'商家忠实顾客' } }
 ];
 
 

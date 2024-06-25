@@ -3,6 +3,7 @@
     <UserLogoutButton />
     <el-button type="primary" class="dish-search-button" @click="goToDishSearch">搜索菜品</el-button>
     <el-button type="primary" class="order-place-button" @click="goToOrderPlace">我要下单</el-button>
+    <el-button type="primary" class="order-place-button" @click="viewLoyal">忠实顾客</el-button>
     <h1>商家详细信息</h1>
     <div v-if="loading">Loading...</div>
     <div v-else>
@@ -26,7 +27,7 @@
             <p>线下销量: {{ dish.offline_sales }}</p>
             <p>评分: {{ dish.avg_rating }}</p>
             <p>总订单数: {{ dish.total_orders }}</p>
-            <p>最高订单用户: {{ dish.top_customer?.username }} ({{ dish.top_customer?.count }} orders)</p>
+            <p>最高订单用户: {{ dish.top_customer?.username }}</p>
             <span v-if="isDishFavorite(dish.id)" class="favorite-star">⭐</span>
 
             <el-button
@@ -39,11 +40,10 @@
           </li>
         </ul>
       </div>
-
-
     </div>
   </div>
 </template>
+
 <script>
 import UserLogoutButton from "@/components/UserLogoutButton.vue";
 import axios from 'axios';
@@ -177,10 +177,15 @@ export default {
     goToOrderPlace() {
       const merchantId = this.$route.params.id;
       this.$router.push({ name: 'OrderPlace', params: { id: merchantId } });
+    },
+    viewLoyal() {
+      const merchantId = this.$route.params.id;
+      this.$router.push({ name: 'UserMerchantLoyalCustomers', params: { id: merchantId } });
     }
   }
 };
 </script>
+
 <style scoped>
 .details p {
   margin-bottom: 10px;
@@ -204,5 +209,5 @@ li a {
   width: 100%;
   height: 100%;
 }
-
 </style>
+

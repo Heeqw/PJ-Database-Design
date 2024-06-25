@@ -199,6 +199,7 @@ def user_activity_analysis(request):
     """
     orders = Order.objects.filter(user=request.user)
 
+    # 继续根据需要进行活跃度分析
     weekly_activity = orders.annotate(week=TruncWeek('created_at', tzinfo=timezone.get_current_timezone())).values(
         'week').annotate(
         count=Count('id')).order_by('week')
@@ -216,6 +217,7 @@ def user_activity_analysis(request):
         'monthly_activity': list(monthly_activity),
         'time_activity': list(time_activity)
     })
+
 
 
 # 用户群体特征分析

@@ -14,13 +14,13 @@
       <ul>
         <li v-for=" order in paginatedOrders" :key="order.id">
           <div class="order-item">
-            <router-link :to="{ name: 'MerchantOrderDetail', params: { id: order.id } }" class="order-link">
+
               <p>用户: {{ order.user }}</p>
               <p>订单时间: {{ order.date }}</p>
               <p>状态: {{ order.status }}</p>
               <p>类型: {{ order.type }}</p>
               <p>总价: {{ order.total_price }}</p>
-            </router-link>
+
             <el-button
                 v-if="order.status === 'preparing'"
                 type="success"
