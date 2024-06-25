@@ -1,8 +1,8 @@
 <template>
   <div class="home">
     <UserLogoutButton />
-    <h1>Welcome, {{ username }}</h1> <!-- 显示用户名 -->
-    <p>This is your dashboard!</p>
+    <h1>您好，{{ username }}</h1> <!-- 显示用户名 -->
+    <p>这是您的仪表盘！</p>
     <el-button type="primary" @click="viewOrders">查看订单</el-button>
     <el-button type="primary" @click="viewMessages">查看通知</el-button>
     <el-button type="primary" @click="searchMerchants">搜索商家</el-button>

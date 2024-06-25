@@ -11,7 +11,7 @@
       <p>没有搜索到商家。</p>
       <p v-if="allMerchants.length > 0">全部商家信息：</p>
       <ul>
-        <li v-for="merchant in allMerchants" :key="merchant.id">
+        <li v-for=" merchant in paginatedAllMerchants" :key="merchant.id">
           <router-link :to="{ name: 'MerchantDetail', params: { id: merchant.id } }">
             {{ merchant.name }} - {{ merchant.address }} - {{ merchant.phone }}
             <p v-if="merchant.featured_dish">
@@ -28,12 +28,16 @@
           </el-button>
         </li>
       </ul>
+      <div>
+        <button @click="changePageAllMerchants(-1)" :disabled="currentPageAllMerchants === 1">上一页</button>
+        <button @click="changePageAllMerchants(1)" :disabled="currentPageAllMerchants === totalPagesAllMerchants">下一页</button>
+      </div>
     </div>
 
     <div v-if="merchants.length > 0">
       <h3>搜索结果:</h3>
       <ul>
-        <li v-for="merchant in merchants" :key="merchant.id">
+        <li v-for=" merchant in paginatedMerchants" :key="merchant.id">
           <router-link :to="{ name: 'MerchantDetail', params: { id: merchant.id } }">
             {{ merchant.name }} - {{ merchant.address }} - {{ merchant.phone }}
             <p v-if="merchant.featured_dish">
@@ -50,9 +54,14 @@
           </el-button>
         </li>
       </ul>
+      <div>
+        <button @click="changePageMerchants(-1)" :disabled="currentPageMerchants === 1">上一页</button>
+        <button @click="changePageMerchants(1)" :disabled="currentPageMerchants === totalPagesMerchants">下一页</button>
+      </div>
     </div>
   </div>
 </template>
+
 <script>
 import UserLogoutButton from '@/components/UserLogoutButton.vue';
 import axios from 'axios';
@@ -66,9 +75,13 @@ export default {
       query: '',
       loading: false,
       merchants: [],
-      allMerchants: [], // 添加一个新的数组来存储所有商家信息
-      favoriteMerchants: [], // 存储已收藏的商家
-      error: null
+      allMerchants: [], // 所有商家信息
+      favoriteMerchants: [], // 已收藏的商家
+      error: null,
+      currentPageMerchants: 1, // 当前搜索结果页数
+      pageSizeMerchants: 3, // 每页显示搜索结果数
+      currentPageAllMerchants: 1, // 当前全部商家信息页数
+      pageSizeAllMerchants: 3 // 每页显示全部商家信息数
     };
   },
   mounted() {
@@ -77,10 +90,9 @@ export default {
   },
   methods: {
     fetchAllMerchants() {
-      fetch(`http://127.0.0.1:8000/api/merchants/search/`)
-          .then(response => response.json())
-          .then(data => {
-            this.allMerchants = data;
+      axios.get('http://127.0.0.1:8000/api/merchants/search/')
+          .then(response => {
+            this.allMerchants = response.data;
           })
           .catch(error => {
             console.error('获取全部商家信息失败:', error);
@@ -97,11 +109,10 @@ export default {
     },
     searchMerchants() {
       this.loading = true;
-      fetch(`http://127.0.0.1:8000/api/merchants/search/?q=${this.query}`)
-          .then(response => response.json())
-          .then(data => {
+      axios.get(`http://127.0.0.1:8000/api/merchants/search/?q=${this.query}`)
+          .then(response => {
             this.loading = false;
-            this.merchants = data;
+            this.merchants = response.data;
           })
           .catch(error => {
             this.loading = false;
@@ -112,22 +123,44 @@ export default {
     addFavoriteMerchant(merchantId) {
       axios.post('http://127.0.0.1:8000/api/users/add_favorite_merchant/', { merchant_id: merchantId })
           .then(response => {
-            console.log('Response data:', response.data);
-            alert('Merchant added to favorites');
-            // 更新已收藏的商家列表
+            console.log('商家已收藏', response.data);
+            alert('商家已收藏');
             this.favoriteMerchants.push(merchantId);
           })
           .catch(error => {
-            console.error('Error adding favorite merchant:', error);
-            alert('Failed to add favorite merchant');
+            console.error('添加收藏商家失败:', error);
+            alert('添加收藏商家失败');
           });
     },
     isFavorite(merchantId) {
       return this.favoriteMerchants.includes(merchantId);
+    },
+    changePageMerchants(pageOffset) {
+      this.currentPageMerchants += pageOffset;
+    },
+    changePageAllMerchants(pageOffset) {
+      this.currentPageAllMerchants += pageOffset;
+    }
+  },
+  computed: {
+    paginatedMerchants() {
+      const startIndex = (this.currentPageMerchants - 1) * this.pageSizeMerchants;
+      return this.merchants.slice(startIndex, startIndex + this.pageSizeMerchants);
+    },
+    paginatedAllMerchants() {
+      const startIndex = (this.currentPageAllMerchants - 1) * this.pageSizeAllMerchants;
+      return this.allMerchants.slice(startIndex, startIndex + this.pageSizeAllMerchants);
+    },
+    totalPagesMerchants() {
+      return Math.ceil(this.merchants.length / this.pageSizeMerchants);
+    },
+    totalPagesAllMerchants() {
+      return Math.ceil(this.allMerchants.length / this.pageSizeAllMerchants);
     }
   }
 };
 </script>
+
 <style scoped>
 input {
   width: 200px;
@@ -160,5 +193,4 @@ li a {
   width: 100%;
   height: 100%;
 }
-
 </style>

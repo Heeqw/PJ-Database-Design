@@ -63,26 +63,6 @@ export default {
             this.loading = false;
           });
     },
-    submitReview(detail) {
-      const dishId = detail.dish.id;
-      const token = localStorage.getItem('token');
-      const data = {
-        rating: detail.rating,
-        comment: detail.comment
-      };
-      axios.post(`http://127.0.0.1:8000/api/dishes/${dishId}/add_review/`, data, {
-        headers: {
-          'Authorization': `Token ${token}`
-        }
-      })
-          .then(response => {
-            console.log('评价已提交:', response.data);
-            detail.reviewed = true;
-          })
-          .catch(error => {
-            console.error('提交评价失败:', error);
-          });
-    }
   }
 };
 </script>

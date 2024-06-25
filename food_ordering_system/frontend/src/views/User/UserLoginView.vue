@@ -1,13 +1,13 @@
 <template>
   <div>
-    <h2>User Login</h2>
+    <h2>用户登录</h2>
     <form @submit.prevent="login">
       <div style="display: block;">
-        <label>Username:</label>
+        <label>用户名：</label>
         <el-input v-model="username" style="width: 240px" type="username" placeholder="Please input username" clearable/>
       </div>
       <div style="display: block;">
-        <label>Password:</label>
+        <label>密码：</label>
         <el-input v-model="password" style="width: 240px" type="password" placeholder="Please input password" clearable show-password/>
       </div>
       <button type="submit">Login</button>

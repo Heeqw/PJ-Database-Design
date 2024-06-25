@@ -80,7 +80,6 @@ export default {
 </script>
 
 <style scoped>
-/* 样式可以根据需要自行调整 */
 ul {
   list-style-type: none;
   padding: 0;

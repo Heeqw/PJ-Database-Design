@@ -12,7 +12,7 @@
     <div v-if="orders.length > 0">
       <h3>订单列表:</h3>
       <ul>
-        <li v-for="order in orders" :key="order.id">
+        <li v-for=" order in paginatedOrders" :key="order.id">
           <div class="order-item">
             <router-link :to="{ name: 'MerchantOrderDetail', params: { id: order.id } }" class="order-link">
               <p>用户: {{ order.user }}</p>
@@ -21,15 +21,20 @@
               <p>类型: {{ order.type }}</p>
               <p>总价: {{ order.total_price }}</p>
             </router-link>
-
+            <el-button
+                v-if="order.status === 'preparing'"
+                type="success"
+                @click="confirmOrder(order.id)"
+            >确认订单</el-button>
           </div>
-          <el-button
-            v-if="order.status === 'preparing'"
-            type="success"
-            @click="confirmOrder(order.id)"
-        >确认订单</el-button>
         </li>
       </ul>
+      <div>
+        <p>共 {{ orders.length }} 条订单</p>
+        <p>当前页 {{ currentPage }} / {{ totalPages }}</p>
+        <button @click="changePage(-1)" :disabled="currentPage === 1">上一页</button>
+        <button @click="changePage(1)" :disabled="currentPage === totalPages">下一页</button>
+      </div>
     </div>
   </div>
 </template>
@@ -37,15 +42,17 @@
 <script>
 import axios from 'axios';
 import MerchantLogoutButton from "@/components/MerchantLogoutButton.vue";
-import { ElMessage} from "element-plus";
+import { ElMessage } from "element-plus";
 
 export default {
-  components: {MerchantLogoutButton,},
+  components: { MerchantLogoutButton },
   data() {
     return {
       orders: [],
       loading: true,
-      error: null
+      error: null,
+      currentPage: 1,
+      pageSize: 3
     };
   },
   created() {
@@ -54,13 +61,14 @@ export default {
   methods: {
     fetchOrderHistory() {
       const token = localStorage.getItem('token');
-      axios.get('http://127.0.0.1:8000/api/merchants/orders/',{
+      axios.get('http://127.0.0.1:8000/api/merchants/orders/', {
         headers: {
           'Authorization': `Token ${token}`
         }
       })
           .then(response => {
-            this.orders = response.data;
+            // 反转订单数组，使最新的订单在最前面
+            this.orders = response.data.reverse();
             this.loading = false;
           })
           .catch(error => {
@@ -69,9 +77,9 @@ export default {
             this.loading = false;
           });
     },
-    confirmOrder(orderId){
+    confirmOrder(orderId) {
       const token = localStorage.getItem('token');
-      axios.put(`http://127.0.0.1:8000/api/merchants/confirm_order/${orderId}/`,{},{
+      axios.put(`http://127.0.0.1:8000/api/merchants/confirm_order/${orderId}/`, {}, {
         headers: {
           'Authorization': `Token ${token}`
         }
@@ -88,13 +96,24 @@ export default {
             console.error('确认订单失败：', error);
             ElMessage.error('确认订单失败！');
           });
+    },
+    changePage(pageOffset) {
+      this.currentPage += pageOffset;
+    }
+  },
+  computed: {
+    paginatedOrders() {
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      return this.orders.slice(startIndex, startIndex + this.pageSize);
+    },
+    totalPages() {
+      return Math.ceil(this.orders.length / this.pageSize);
     }
   }
 };
 </script>
 
 <style scoped>
-/* 添加一些样式使页面更好看 */
 ul {
   list-style-type: none;
   padding: 0;
@@ -132,3 +151,4 @@ p {
   flex-grow: 1;
 }
 </style>
+

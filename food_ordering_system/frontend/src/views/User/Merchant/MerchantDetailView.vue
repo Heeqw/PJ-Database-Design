@@ -1,24 +1,25 @@
 <template>
   <div>
     <UserLogoutButton />
-    <h1>Merchant Details</h1>
+    <el-button type="primary" class="dish-search-button" @click="goToDishSearch">搜索菜品</el-button>
+    <el-button type="primary" class="order-place-button" @click="goToOrderPlace">我要下单</el-button>
+    <h1>商家详细信息</h1>
     <div v-if="loading">Loading...</div>
     <div v-else>
-      <p>Name: {{ merchant.name }}</p>
-      <p>Address: {{ merchant.address }}</p>
-      <p>Phone: {{ merchant.phone }}</p>
+      <p>名称：{{ merchant.name }}</p>
+      <p>地址：{{ merchant.address }}</p>
+      <p>手机：{{ merchant.phone }}</p>
 
-      <!-- 商家详细信息 -->
-      <h2>Dishes</h2>
+      <h2>菜品</h2>
       <div v-if="loadingDishes">Loading dishes...</div>
       <div v-else-if="dishes.length === 0">No dishes found.</div>
       <div v-else>
         <ul>
           <li v-for="dish in dishes" :key="dish.id">
             <router-link :to="{ name: 'UserDishDetail', params: { id: dish.id } }">
-              <p>Name: {{ dish.name }}</p>
+              <p>名称：{{ dish.name }}</p>
               <p>Id: {{ dish.id }}</p>
-              <p>Price: {{ dish.price }}</p>
+              <p>价格：{{ dish.price }}</p>
             </router-link>
             <p>收藏量: {{ dish.favorite_count }}</p>
             <p>线上销量: {{ dish.online_sales }}</p>
@@ -39,9 +40,7 @@
         </ul>
       </div>
 
-      <!-- 添加按钮跳转到搜索菜品页面 -->
-      <el-button type="primary" class="dish-search-button" @click="goToDishSearch">搜索菜品</el-button>
-      <el-button type="primary" class="order-place-button" @click="goToOrderPlace">我要下单</el-button>
+
     </div>
   </div>
 </template>

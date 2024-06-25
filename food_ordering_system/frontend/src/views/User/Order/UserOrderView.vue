@@ -5,6 +5,8 @@
 
     <div v-if="loading">加载中...</div>
 
+    <div v-if="error">{{ error }}</div>
+
     <div v-if="!loading && orders.length === 0">
       没有订单记录。
     </div>
@@ -12,7 +14,7 @@
     <div v-if="orders.length > 0">
       <h3>订单列表:</h3>
       <ul>
-        <li v-for="order in orders" :key="order.id" class="order-item">
+        <li v-for=" order in paginatedOrders" :key="order.id" class="order-item">
           <router-link :to="{ name: 'UserOrderDetail', params: { id: order.id } }" class="order-link">
             <div>
               <p>订单id: {{ order.id }}</p>
@@ -25,10 +27,15 @@
           </router-link>
         </li>
       </ul>
+      <div>
+        <p>共 {{ orders.length }} 条订单</p>
+        <p>当前页 {{ currentPage }} / {{ totalPages }}</p>
+        <button @click="changePage(-1)" :disabled="currentPage === 1">上一页</button>
+        <button @click="changePage(1)" :disabled="currentPage === totalPages">下一页</button>
+      </div>
     </div>
   </div>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -40,7 +47,9 @@ export default {
     return {
       orders: [],
       loading: true,
-      error: null
+      error: null,
+      currentPage: 1,
+      pageSize: 3
     };
   },
   created() {
@@ -48,15 +57,13 @@ export default {
   },
   methods: {
     fetchOrderHistory() {
-      const token = localStorage.getItem('token'); // 从本地存储中获取token
-      console.log('Token:', token);
+      const token = localStorage.getItem('token');
       axios.get('http://127.0.0.1:8000/api/orders/order_history', {
         headers: {
           'Authorization': `Token ${token}`
         }
       })
           .then(response => {
-            console.log('Response data:', response.data); // 调试：打印响应数据
             this.orders = response.data;
             this.loading = false;
           })
@@ -65,13 +72,24 @@ export default {
             this.error = '获取订单历史失败';
             this.loading = false;
           });
+    },
+    changePage(pageOffset) {
+      this.currentPage += pageOffset;
+    }
+  },
+  computed: {
+    paginatedOrders() {
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      return this.orders.slice(startIndex, startIndex + this.pageSize);
+    },
+    totalPages() {
+      return Math.ceil(this.orders.length / this.pageSize);
     }
   }
 };
 </script>
 
 <style scoped>
-/* 添加一些样式使页面更好看 */
 ul {
   list-style-type: none;
   padding: 0;

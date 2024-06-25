@@ -1,7 +1,10 @@
 <template>
   <div>
+    <div class="button-group">
     <MerchantLogoutButton />
-    <h1>商家详情</h1>
+    <el-button type=primary @click="goToCreateDish">添加新菜品</el-button>
+    </div>
+      <h1>商家详情</h1>
     <div v-if="loading">加载中...</div>
     <div v-else>
       <p>名称：{{ merchant.name }}</p>
@@ -23,7 +26,7 @@
               <p>类别：{{ dish.category }}</p>
             </router-link>
             <el-button type=danger @click="deleteDish(dish.id)">删除</el-button>
-            <el-button type=success @click="setFeaturedDish(dish.id)">设置为主打菜</el-button> <!-- 新添加的按钮 -->
+            <el-button type=success @click="setFeaturedDish(dish.id)">设置为主打菜</el-button>
           </li>
         </ul>
       </div>
@@ -51,6 +54,9 @@ export default {
     this.fetchMerchantDishes();
   },
   methods: {
+    goToCreateDish() {
+      this.$router.push({ name: 'MerchantDishCreate' });
+    },
     // 获取商家详情
     fetchMerchantDetails() {
       const merchantId = this.$route.params.id;
@@ -158,6 +164,16 @@ li a {
   width: 100%;
   height: 100%;
 }
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+form {
+  text-align: center;
+}
+
 
 </style>
 
