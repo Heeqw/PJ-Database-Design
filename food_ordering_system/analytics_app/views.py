@@ -2,11 +2,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Count, Avg
+from django.db.models.functions import TruncHour, TruncWeek, TruncMonth
 from dish_app.models import Dish, Review
 from user_app.models import User, FavoriteDish
 from order_app.models import Order, OrderDetail
-from datetime import datetime
 from .serializers import DishSerializer, ReviewSerializer, OrderDetailSerializer, UserSerializer, FavoriteDishSerializer
+from django.utils import timezone
 
 
 # 菜品数据分析
@@ -55,20 +56,26 @@ def dish_statistics(request, merchant_id):
         total_orders = OrderDetail.objects.filter(dish=dish).count()
         top_customer = OrderDetail.objects.filter(dish=dish).values('order__user').annotate(count=Count('id')).order_by(
             '-count').first()
-        # 获取用户的用户名
-        top_customer_username = User.objects.get(id=top_customer['order__user']).username
-        data.append({
-            'dish': DishSerializer(dish).data,
-            'avg_rating': avg_rating,
-            'total_orders': total_orders,
-            'top_customer': {
-                'user_id': top_customer['order__user'],
-                'username': top_customer_username,
-                'count': top_customer['count']
-            }
-        })
+        if top_customer:
+            top_customer_username = User.objects.get(id=top_customer['order__user']).username
+            data.append({
+                'dish': DishSerializer(dish).data,
+                'avg_rating': avg_rating,
+                'total_orders': total_orders,
+                'top_customer': {
+                    'user_id': top_customer['order__user'],
+                    'username': top_customer_username,
+                    'count': top_customer['count']
+                }
+            })
+        else:
+            data.append({
+                'dish': DishSerializer(dish).data,
+                'avg_rating': avg_rating,
+                'total_orders': total_orders,
+                'top_customer': None
+            })
     return Response(data)
-
 
 
 @api_view(['GET'])
@@ -144,7 +151,7 @@ def merchant_loyal_customers(request, merchant_id):
             }
           ]
     """
-    orders = Order.objects.filter(merchant=merchant_id)
+    orders = Order.objects.filter(merchant_id=merchant_id)
     loyal_customers = orders.values('user').annotate(count=Count('id')).filter(count__gt=5)  # 忠实顾客阈值为5
     data = []
     for customer in loyal_customers:
@@ -153,7 +160,7 @@ def merchant_loyal_customers(request, merchant_id):
             count=Count('id'))
         data.append({
             'user': UserSerializer(user).data,
-            'dishes': dishes
+            'dishes': list(dishes)
         })
     return Response(data)
 
@@ -172,13 +179,13 @@ def user_activity_analysis(request):
           {
             "weekly_activity": [
               {
-                "week": "01",
+                "week": "2024-W01",
                 "count": 5
               }
             ],
             "monthly_activity": [
               {
-                "month": "01",
+                "month": "2024-01",
                 "count": 20
               }
             ],
@@ -191,16 +198,23 @@ def user_activity_analysis(request):
           }
     """
     orders = Order.objects.filter(user=request.user)
-    weekly_activity = orders.extra(select={'week': "strftime('%%W', created_at)"}).values('week').annotate(
+
+    weekly_activity = orders.annotate(week=TruncWeek('created_at', tzinfo=timezone.get_current_timezone())).values(
+        'week').annotate(
         count=Count('id')).order_by('week')
-    monthly_activity = orders.extra(select={'month': "strftime('%%m', created_at)"}).values('month').annotate(
+
+    monthly_activity = orders.annotate(month=TruncMonth('created_at', tzinfo=timezone.get_current_timezone())).values(
+        'month').annotate(
         count=Count('id')).order_by('month')
-    time_activity = orders.extra(select={'hour': "strftime('%%H', created_at)"}).values('hour').annotate(
+
+    time_activity = orders.annotate(hour=TruncHour('created_at', tzinfo=timezone.get_current_timezone())).values(
+        'hour').annotate(
         count=Count('id')).order_by('hour')
+
     return Response({
-        'weekly_activity': weekly_activity,
-        'monthly_activity': monthly_activity,
-        'time_activity': time_activity
+        'weekly_activity': list(weekly_activity),
+        'monthly_activity': list(monthly_activity),
+        'time_activity': list(time_activity)
     })
 
 
@@ -232,9 +246,10 @@ def user_demographics_analysis(request):
     """
     users = User.objects.all()
     role_distribution = users.values('role').annotate(count=Count('id'))
-    age_distribution = users.extra(select={'age': "strftime('%Y', 'now') - strftime('%Y', date_of_birth)"}).values(
-        'age').annotate(count=Count('id')).order_by('age')
+    age_distribution = users.annotate(
+        age=timezone.now().year - users.values('date_of_birth__year')
+    ).values('age').annotate(count=Count('id')).order_by('age')
     return Response({
-        'role_distribution': role_distribution,
-        'age_distribution': age_distribution
+        'role_distribution': list(role_distribution),
+        'age_distribution': list(age_distribution)
     })
