@@ -1,6 +1,7 @@
 <template>
   <div class="profile">
     <UserLogoutButton />
+    <el-button type="primary" @click="viewActivities">活跃度查看</el-button>
     <h1>个人信息</h1>
     <p>用户名: {{ user.username }}</p>
     <p>全名: {{ user.full_name }}</p>
@@ -26,6 +27,11 @@ export default {
     if (user) {
       this.user = user;
     }
+  },
+  methods:{
+    viewActivities() {
+      this.$router.push({ name: 'UserActivities' });
+    },
   }
 };
 </script>

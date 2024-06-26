@@ -248,10 +248,10 @@ def user_demographics_analysis(request):
     """
     users = User.objects.all()
     role_distribution = users.values('role').annotate(count=Count('id'))
-    age_distribution = users.annotate(
-        age=timezone.now().year - users.values('date_of_birth__year')
-    ).values('age').annotate(count=Count('id')).order_by('age')
+    #age_distribution = users.annotate(
+    #    age=timezone.now().year - users.values('date_of_birth__year')
+    #).values('age').annotate(count=Count('id')).order_by('age')
     return Response({
         'role_distribution': list(role_distribution),
-        'age_distribution': list(age_distribution)
+        #'age_distribution': list(age_distribution)
     })
