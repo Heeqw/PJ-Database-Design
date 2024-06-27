@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-
+from django.db import transaction
 from message_app.models import Notification
 from .models import Order, OrderDetail
 from .serializers import OrderSerializer, OrderDetailSerializer
@@ -100,36 +100,40 @@ def place_order(request):
         if reservation_datetime < datetime.now():
             return Response({"error": "Reservation time cannot be in the past."}, status=status.HTTP_400_BAD_REQUEST)
 
-    order = Order.objects.create(
-        user=request.user,
-        merchant_id=request.data.get('merchant'),
-        status='preparing',
-        order_type=request.data.get('order_type'),
-        order_dining_status=request.data.get('order_dining_status'),
-        date=request.data.get('date'),
-        time=request.data.get('time'),
-        total_price=0.0  # Initial price, calculate below
-    )
+    try:
+        with transaction.atomic():
+            order = Order.objects.create(
+                user=request.user,
+                merchant_id=request.data.get('merchant'),
+                status='preparing',
+                order_type=request.data.get('order_type'),
+                order_dining_status=request.data.get('order_dining_status'),
+                date=request.data.get('date'),
+                time=request.data.get('time'),
+                total_price=Decimal('0.0')  # Initial price, calculate below
+            )
 
-    total_price = Decimal('0.0')
-    for dish_id in dish_ids:
-        try:
-            dish = Dish.objects.get(id=dish_id)
-        except Dish.DoesNotExist:
-            continue
-        quantity = int(request.data.get('quantities', {}).get(str(dish_id), 1))
-        price = Decimal(dish.price) * Decimal(quantity)
-        total_price += Decimal(price)
-        OrderDetail.objects.create(order=order, dish=dish, quantity=quantity, price=price)
+            total_price = Decimal('0.0')
+            for dish_id in dish_ids:
+                try:
+                    dish = Dish.objects.get(id=dish_id)
+                except Dish.DoesNotExist:
+                    continue
+                quantity = int(request.data.get('quantities', {}).get(str(dish_id), 1))
+                price = Decimal(dish.price) * Decimal(quantity)
+                total_price += price
+                OrderDetail.objects.create(order=order, dish=dish, quantity=quantity, price=price)
 
-    order.total_price = total_price
-    order.save()
+            order.total_price = total_price
+            order.save()
 
-    # 创建消息通知
-    Notification.objects.create(user=request.user, message=f"Your order {order.id} has been placed.")
+            # 创建消息通知
+            Notification.objects.create(user=request.user, message=f"Your order {order.id} has been placed.")
 
-    serializer = OrderSerializer(order)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])

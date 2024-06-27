@@ -2,7 +2,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
-
+from django.db import transaction
 from order_app.models import OrderDetail
 from user_app.models import FavoriteDish
 from .models import Dish, Review, PriceHistory
@@ -81,7 +81,8 @@ def add_review(request, dish_id):
     dish = get_object_or_404(Dish, pk=dish_id)
     serializer = ReviewSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save(user=request.user, dish=dish)
+        with transaction.atomic():
+            serializer.save(user=request.user, dish=dish)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
