@@ -4,9 +4,9 @@ import uuid
 
 
 class Merchant(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, db_index=True)
     address = models.CharField(max_length=255)
-    phone = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     featured_dish = models.ForeignKey('dish_app.Dish', on_delete=models.SET_NULL,null=True,blank=True,related_name='featured_by')
 

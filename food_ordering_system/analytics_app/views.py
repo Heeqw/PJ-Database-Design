@@ -1,13 +1,15 @@
+from datetime import timedelta
+from django.db.models import Count, Avg,Sum
+from django.db.models.functions import TruncHour, TruncWeek, TruncMonth, TruncDay
+from django.utils import timezone
+from django.utils.timezone import now
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import Count, Avg
-from django.db.models.functions import TruncHour, TruncWeek, TruncMonth
 from dish_app.models import Dish, Review
-from user_app.models import User, FavoriteDish
 from order_app.models import Order, OrderDetail
-from .serializers import DishSerializer, ReviewSerializer, OrderDetailSerializer, UserSerializer, FavoriteDishSerializer
-from django.utils import timezone
+from user_app.models import User, FavoriteDish
+from .serializers import DishSerializer, UserSerializer
 
 
 # 菜品数据分析
@@ -82,33 +84,61 @@ def dish_statistics(request, merchant_id):
 @permission_classes([IsAuthenticated])
 def user_favorite_dish(request):
     """
-        获取用户收藏的菜品及其销售数据。
+    获取用户收藏的菜品及其在指定时间范围内的销售数据。
 
-        响应:
-          200:
-            描述: 用户收藏的菜品列表及其销售数据
-            示例:
-              [
-                {
-                  "dish": {
-                    "id": 1,
-                    "name": "示例菜品",
-                    "merchant_id": 1,
-                    "price": 10.99,
-                    "description": "美味的示例菜品",
-                    "created_at": "2024-06-07T12:00:00Z",
-                    "updated_at": "2024-06-07T12:00:00Z"
-                  },
-                  "sales_online": 50,
-                  "sales_offline": 30
-                }
-              ]
-        """
+    参数:
+      - 名称: period
+        描述: 时间范围，可选值为 'week', 'month', 'year'
+        必需: 是
+        类型: 字符串
+
+    响应:
+      200:
+        描述: 用户收藏的菜品列表及其销售数据
+        示例:
+          [
+            {
+              "dish": {
+                "id": 1,
+                "name": "示例菜品",
+                "merchant_id": 1,
+                "price": 10.99,
+                "description": "美味的示例菜品",
+                "created_at": "2024-06-07T12:00:00Z",
+                "updated_at": "2024-06-07T12:00:00Z"
+              },
+              "sales_online": 50,
+              "sales_offline": 30
+            }
+          ]
+    """
+    period = request.query_params.get('period')
+    if period not in ['week', 'month', 'year']:
+        return Response({'error': 'Invalid period. Choose from week, month, year.'}, status=400)
+
+    end_date = now()
+    if period == 'week':
+        start_date = end_date - timedelta(weeks=1)
+    elif period == 'month':
+        start_date = end_date - timedelta(days=30)
+    elif period == 'year':
+        start_date = end_date - timedelta(days=365)
+    else:
+        return Response({'error': 'Invalid period. Choose from week, month, year.'}, status=400)  # 防止start_date未赋值
+
     user_favorites = FavoriteDish.objects.filter(user=request.user)
     data = []
     for favorite in user_favorites:
-        sales_online = OrderDetail.objects.filter(dish=favorite.dish, order__order_type='online').count()
-        sales_offline = OrderDetail.objects.filter(dish=favorite.dish, order__order_type='offline').count()
+        sales_online = OrderDetail.objects.filter(
+            dish=favorite.dish,
+            order__order_type='online',
+            order__created_at__range=(start_date, end_date)
+        ).count()
+        sales_offline = OrderDetail.objects.filter(
+            dish=favorite.dish,
+            order__order_type='offline',
+            order__created_at__range=(start_date, end_date)
+        ).count()
         data.append({
             'dish': DishSerializer(favorite.dish).data,
             'sales_online': sales_online,
@@ -219,7 +249,6 @@ def user_activity_analysis(request):
     })
 
 
-
 # 用户群体特征分析
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -248,10 +277,104 @@ def user_demographics_analysis(request):
     """
     users = User.objects.all()
     role_distribution = users.values('role').annotate(count=Count('id'))
-    #age_distribution = users.annotate(
-    #    age=timezone.now().year - users.values('date_of_birth__year')
-    #).values('age').annotate(count=Count('id')).order_by('age')
+    age_distribution = users.annotate(
+       age=timezone.now().year - users.values('date_of_birth__year')
+    ).values('age').annotate(count=Count('id')).order_by('age')
     return Response({
         'role_distribution': list(role_distribution),
-        #'age_distribution': list(age_distribution)
+        'age_distribution': list(age_distribution)
     })
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def dish_sales_trend(request, merchant_id):
+    """
+    获取指定商户的菜品销量趋势分析。
+
+    参数:
+      - 名称: merchant_id
+        描述: 商家的ID
+        必需: 是
+        类型: 整数
+      - 名称: period
+        描述: 时间范围，可选值为 'week', 'month', 'year'
+        必需: 是
+        类型: 字符串
+      - 名称: interval
+        描述: 时间间隔，可选值为 'day', 'week', 'month'
+        必需: 是
+        类型: 字符串
+
+    响应:
+      200:
+        描述: 菜品销量趋势分析
+        示例:
+          [
+            {
+              "dish": {
+                "id": 1,
+                "name": "示例菜品",
+                "merchant_id": 1,
+                "price": 10.99,
+                "description": "美味的示例菜品",
+                "created_at": "2024-06-07T12:00:00Z",
+                "updated_at": "2024-06-07T12:00:00Z"
+              },
+              "sales_trend": [
+                {
+                  "interval": "2024-01-01",
+                  "sales": 30
+                },
+                {
+                  "interval": "2024-01-02",
+                  "sales": 25
+                }
+              ]
+            }
+          ]
+    """
+    period = request.query_params.get('period')
+    interval = request.query_params.get('interval')
+    if period not in ['week', 'month', 'year'] or interval not in ['day', 'week', 'month']:
+        return Response({'error': 'Invalid period or interval. Choose from period: week, month, year; interval: day, week, month.'}, status=400)
+
+    end_date = now()
+    if period == 'week':
+        start_date = end_date - timedelta(weeks=1)
+    elif period == 'month':
+        start_date = end_date - timedelta(days=30)
+    elif period == 'year':
+        start_date = end_date - timedelta(days=365)
+    else:
+        return Response({'error': 'Invalid period. Choose from week, month, year.'}, status=400)  # 防止start_date未赋值
+
+    # 获取商户的所有菜品
+    dishes = Dish.objects.filter(merchant_id=merchant_id)
+    data = []
+
+    for dish in dishes:
+        if interval == 'day':
+            sales_trend = OrderDetail.objects.filter(
+                dish=dish,
+                order__created_at__range=(start_date, end_date)
+            ).annotate(interval=TruncDay('order__created_at')).values('interval').annotate(sales=Sum('quantity')).order_by('interval')
+        elif interval == 'week':
+            sales_trend = OrderDetail.objects.filter(
+                dish=dish,
+                order__created_at__range=(start_date, end_date)
+            ).annotate(interval=TruncWeek('order__created_at')).values('interval').annotate(sales=Sum('quantity')).order_by('interval')
+        elif interval == 'month':
+            sales_trend = OrderDetail.objects.filter(
+                dish=dish,
+                order__created_at__range=(start_date, end_date)
+            ).annotate(interval=TruncMonth('order__created_at')).values('interval').annotate(sales=Sum('quantity')).order_by('interval')
+        else:
+            sales_trend = []
+
+        data.append({
+            'dish': DishSerializer(dish).data,
+            'sales_trend': list(sales_trend)
+        })
+
+    return Response(data)

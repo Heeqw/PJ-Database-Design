@@ -6,7 +6,7 @@ from order_app.models import Order
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'full_name', 'gender', 'role', 'student_id', 'staff_id']
+        fields = ['id', 'username', 'email', 'full_name', 'gender', 'role', 'student_id', 'staff_id', 'age']
 
 
 class FavoriteMerchantSerializer(serializers.ModelSerializer):
