@@ -230,15 +230,25 @@ def user_activity_analysis(request):
     """
     orders = Order.objects.filter(user=request.user)
 
-    # 继续根据需要进行活跃度分析
-    weekly_activity = orders.annotate(week=TruncWeek('date', tzinfo=timezone.get_current_timezone())).values(
-        'week').annotate(
-        count=Count('id')).order_by('week')
+    # 手动计算按周统计
+    weekly_activity = defaultdict(int)
+    for order in orders:
+        if order.date:
+            week_start = order.date - timedelta(days=order.date.weekday())
+            weekly_activity[week_start] += 1
 
-    monthly_activity = orders.annotate(month=TruncMonth('date', tzinfo=timezone.get_current_timezone())).values(
-        'month').annotate(
-        count=Count('id')).order_by('month')
+    weekly_activity_list = [{'week': week_start, 'count': count} for week_start, count in sorted(weekly_activity.items())]
 
+    # 手动计算按月统计
+    monthly_activity = defaultdict(int)
+    for order in orders:
+        if order.date:
+            month_start = order.date.replace(day=1)
+            monthly_activity[month_start] += 1
+
+    monthly_activity_list = [{'month': month_start, 'count': count} for month_start, count in sorted(monthly_activity.items())]
+
+    # 按小时统计
     time_activity = defaultdict(int)
     for order in orders:
         if order.time:
@@ -248,8 +258,8 @@ def user_activity_analysis(request):
     time_activity_list = [{'hour': hour, 'count': count} for hour, count in sorted(time_activity.items())]
 
     return Response({
-        'weekly_activity': list(weekly_activity),
-        'monthly_activity': list(monthly_activity),
+        'weekly_activity': weekly_activity_list,
+        'monthly_activity': monthly_activity_list,
         'time_activity': time_activity_list
     })
 
