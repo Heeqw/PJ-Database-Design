@@ -68,39 +68,54 @@ export default {
     initChart(customer, index) {
       const chartDom = this.$refs[`chart-${index}`][0]; // 确保获取正确的 DOM 元素
       const myChart = echarts.init(chartDom);
-      const option = {
-        title: {
-          text: `${customer.user.full_name} 的消费分布`
-        },
-        tooltip: {
-          trigger: 'item'
-        },
-        legend: {
-          top: '5%',
-          left: 'center'
-        },
-        series: [
-          {
-            name: '消费次数',
-            type: 'pie',
-            radius: '50%',
-            data: customer.dishes.map(dish => ({ value: dish.count, name: `菜品 ${dish.dish}` })), // 使用菜品份数
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
+
+      // 获取菜品名称
+      this.fetchDishNames(customer.dishes).then(dishNames => {
+        const option = {
+          title: {
+            text: `${customer.user.full_name} 的消费分布`
+          },
+          tooltip: {
+            trigger: 'item'
+          },
+          legend: {
+            top: '5%',
+            left: 'center'
+          },
+          series: [
+            {
+              name: '消费次数',
+              type: 'pie',
+              radius: '50%',
+              data: dishNames.map(dish => ({ value: dish.count, name: `菜品 ${dish.name}` })), // 使用菜品名字
+              emphasis: {
+                itemStyle: {
+                  shadowBlur: 10,
+                  shadowOffsetX: 0,
+                  shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
               }
             }
-          }
-        ]
-      };
-      myChart.setOption(option);
+          ]
+        };
+        myChart.setOption(option);
+      });
+    },
+    fetchDishNames(dishes) {
+      // 构建请求菜品名称的API
+      const promises = dishes.map(dish => {
+        return axios.get(`http://127.0.0.1:8000/api/dishes/${dish.dish}/`)
+            .then(response => ({ name: response.data.name, count: dish.count }))
+            .catch(error => {
+              console.error(`获取菜品 ${dish.dish} 的名称失败:`, error);
+              return { name: '未知菜品', count: dish.count }; // 处理错误，返回默认值
+            });
+      });
+      return Promise.all(promises);
     }
   }
 };
 </script>
-
 
 <style scoped>
 .customer-item {

@@ -16,6 +16,19 @@
         <input type="text" v-model="form.category" id="category" required>
       </div>
       <div>
+        <label for="description">描述:</label>
+        <input type="text" v-model="form.description" id="description" required>
+      </div>
+      <div>
+      <label for="ingredients">原料:</label>
+      <input type="text" v-model="form.ingredients" id="ingredients" required>
+      </div>
+      <div>
+        <label for="nutrition_info">营养成分:</label>
+        <input type="text" v-model="form.nutrition_info" id="nutrition_info" required>
+      </div>
+
+      <div>
         <label for="image_url">图片 URL（可去此网站生成：https://sm.ms/）:</label>
         <input type="text" v-model="form.image_url" id="image_url" required>
       </div>

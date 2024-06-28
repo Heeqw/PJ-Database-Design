@@ -8,6 +8,8 @@
     <p>用户名: {{ user.username }}</p>
     <p>全名: {{ user.full_name }}</p>
     <p>角色: {{ user.role }}</p>
+    <p v-if="user.role === 'student'">学生编号: {{ user.student_id }}</p>
+    <p v-if="user.role === 'staff'">员工编号: {{ user.staff_id }}</p>
     <p>性别: {{ user.gender }}</p>
     <p>年龄: {{ user.age }}</p>
   </div>
@@ -35,10 +37,13 @@ export default {
     viewActivities() {
       this.$router.push({ name: 'UserActivities' });
     },
+    viewDemograhics() {
+      this.$router.push({ name: 'UserDemographics' });
+    },
   }
 };
 </script>
 
 <style scoped>
-/* 在这里添加你的样式 */
+
 </style>

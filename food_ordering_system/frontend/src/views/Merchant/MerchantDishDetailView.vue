@@ -6,6 +6,9 @@
     <div v-else>
       <p>名称：{{ dish.name }}</p>
       <p>类别：{{ dish.category }}</p>
+      <p>描述：{{ dish.description }}</p>
+      <p>原料：{{ dish.ingredients }}</p>
+      <p>营养成分：{{ dish.nutrition_info }}</p>
       <p>价格：{{ dish.price }}</p>
       <el-input type="number" style="width: 120px" v-model="newPrice" placeholder="输入新价格" @input="checkPrice"/>
       <el-button type="primary" @click="updatePrice">修改价格</el-button>

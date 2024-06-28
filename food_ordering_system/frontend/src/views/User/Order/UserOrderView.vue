@@ -57,13 +57,14 @@ export default {
   methods: {
     fetchOrderHistory() {
       const token = localStorage.getItem('token');
-      axios.get('http://127.0.0.1:8000/api/orders/order_history/?ordering=-id', {
+      axios.get('http://127.0.0.1:8000/api/orders/order_history/', {
         headers: {
           'Authorization': `Token ${token}`
         }
       })
           .then(response => {
-            this.orders = response.data;
+            // 使用 reverse() 方法反转订单数组
+            this.orders = response.data.reverse();
             this.loading = false;
           })
           .catch(error => {
@@ -87,7 +88,6 @@ export default {
   }
 };
 </script>
-
 
 <style scoped>
 ul {
