@@ -42,8 +42,8 @@ class Command(BaseCommand):
                 status='completed',
                 order_type=order_type,
                 order_dining_status=order_dining_status,
-                date=order_date.date(),
-                time=random_time,
+                date=order_datetime.date(),
+                time=order_datetime.time(),
                 total_price=price * quantity,
                 created_at=order_datetime,
                 updated_at=order_datetime
@@ -59,15 +59,15 @@ class Command(BaseCommand):
         # 基础数据
         for merchant in merchants:
             for dish in Dish.objects.filter(merchant=merchant):
-                create_order(user1, merchant, dish, 'online', 'dines_in', 1, 2, dish.price)
-                create_order(user1, merchant, dish, 'offline', 'reservation', 7, 3, dish.price)
-                create_order(user1, merchant, dish, 'online', 'dines_in', 30, 1, dish.price)
-                create_order(user1, merchant, dish, 'offline', 'reservation', 365, 5, dish.price)
+                create_order(user1, merchant, dish, 'online', 'dines_in', random.randint(1, 5), random.randint(1, 3), dish.price)
+                create_order(user1, merchant, dish, 'offline', 'reservation', random.randint(6, 10), random.randint(1, 5), dish.price)
+                create_order(user1, merchant, dish, 'online', 'dines_in', random.randint(11, 30), random.randint(1, 2), dish.price)
+                create_order(user1, merchant, dish, 'offline', 'reservation', random.randint(31, 365), random.randint(1, 5), dish.price)
 
-                create_order(user2, merchant, dish, 'online', 'dines_in', 1, 2, dish.price)
-                create_order(user2, merchant, dish, 'offline', 'reservation', 7, 3, dish.price)
-                create_order(user2, merchant, dish, 'online', 'dines_in', 30, 1, dish.price)
-                create_order(user2, merchant, dish, 'offline', 'reservation', 365, 5, dish.price)
+                create_order(user2, merchant, dish, 'online', 'dines_in', random.randint(1, 5), random.randint(1, 3), dish.price)
+                create_order(user2, merchant, dish, 'offline', 'reservation', random.randint(6, 10), random.randint(1, 5), dish.price)
+                create_order(user2, merchant, dish, 'online', 'dines_in', random.randint(11, 30), random.randint(1, 2), dish.price)
+                create_order(user2, merchant, dish, 'offline', 'reservation', random.randint(31, 365), random.randint(1, 5), dish.price)
 
         # 批量插入更多数据
         batch_size = 100
@@ -79,7 +79,6 @@ class Command(BaseCommand):
                 order_type = random.choice(['online', 'offline'])
                 order_dining_status = random.choice(['dines_in', 'reservation'])
                 quantity = random.randint(1, 5)
-                create_order(user1, dish.merchant, dish, order_type, order_dining_status, days_ago, quantity, dish.price)
-                create_order(user2, dish.merchant, dish, order_type, order_dining_status, days_ago, quantity, dish.price)
+                create_order(random.choice([user1, user2]), dish.merchant, dish, order_type, order_dining_status, days_ago, quantity, dish.price)
 
         self.stdout.write(self.style.SUCCESS('大量订单数据创建成功！'))

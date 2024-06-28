@@ -10,6 +10,7 @@ from dish_app.models import Dish, Review
 from order_app.models import Order, OrderDetail
 from user_app.models import User, FavoriteDish
 from .serializers import DishSerializer, UserSerializer
+from collections import defaultdict
 
 
 # 菜品数据分析
@@ -238,14 +239,18 @@ def user_activity_analysis(request):
         'month').annotate(
         count=Count('id')).order_by('month')
 
-    time_activity = orders.annotate(hour=TruncHour('time', tzinfo=timezone.get_current_timezone())).values(
-        'hour').annotate(
-        count=Count('id')).order_by('hour')
+    time_activity = defaultdict(int)
+    for order in orders:
+        if order.time:
+            hour = order.time.hour
+            time_activity[hour] += 1
+
+    time_activity_list = [{'hour': hour, 'count': count} for hour, count in sorted(time_activity.items())]
 
     return Response({
         'weekly_activity': list(weekly_activity),
         'monthly_activity': list(monthly_activity),
-        'time_activity': list(time_activity)
+        'time_activity': time_activity_list
     })
 
 
