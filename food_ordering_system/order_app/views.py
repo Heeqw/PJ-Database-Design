@@ -214,7 +214,7 @@ def order_detail(request, order_id):
         描述: 订单未找到
     """
     order = get_object_or_404(Order, id=order_id, user=request.user)
-    details = OrderDetail.objects.filter(order=order)
+    details = OrderDetail.objects.filter(order=order,quantity__gt=0)
     serializer = OrderDetailSerializer(details, many=True)
     return Response(serializer.data)
 

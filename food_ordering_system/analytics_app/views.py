@@ -1,5 +1,5 @@
 from datetime import timedelta
-from django.db.models import Count, Avg,Sum
+from django.db.models import Count, Avg, Sum, ExpressionWrapper,IntegerField,F
 from django.db.models.functions import TruncHour, TruncWeek, TruncMonth, TruncDay
 from django.utils import timezone
 from django.utils.timezone import now
@@ -277,8 +277,10 @@ def user_demographics_analysis(request):
     """
     users = User.objects.all()
     role_distribution = users.values('role').annotate(count=Count('id'))
+
+    current_year = timezone.now().year
     age_distribution = users.annotate(
-       age=timezone.now().year - users.values('date_of_birth__year')
+       age=ExpressionWrapper(current_year - F('date_of_birth__year'), output_field=IntegerField())
     ).values('age').annotate(count=Count('id')).order_by('age')
     return Response({
         'role_distribution': list(role_distribution),
