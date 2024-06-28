@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.db import transaction
-from order_app.models import OrderDetail
+from order_app.models import OrderDetail, Order
 from user_app.models import FavoriteDish
 from .models import Dish, Review, PriceHistory
 from .serializers import DishSerializer, ReviewSerializer, AllergenSerializer, PriceHistorySerializer, \
@@ -53,7 +53,7 @@ def dish_detail(request, dish_id):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def add_review(request, dish_id):
+def add_review(request, order_id, dish_id):
     """
     添加对指定菜品的评论。
 
@@ -78,11 +78,19 @@ def add_review(request, dish_id):
       400:
         描述: 无效的输入
     """
-    dish = get_object_or_404(Dish, pk=dish_id)
+    order = get_object_or_404(Order, pk=order_id, user=request.user)
+    order_detail = get_object_or_404(OrderDetail, order=order, dish_id=dish_id)
+
+    if order_detail.is_reviewed:
+        return Response({'error': 'This dish has already been reviewed in this order.'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
     serializer = ReviewSerializer(data=request.data)
     if serializer.is_valid():
         with transaction.atomic():
-            serializer.save(user=request.user, dish=dish)
+            serializer.save(user=request.user, dish=order_detail.dish)
+            order_detail.is_reviewed = True
+            order_detail.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

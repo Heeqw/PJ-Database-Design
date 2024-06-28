@@ -55,9 +55,9 @@ export default {
             // 这里假设从后端返回的数据中已经包含了reviewed、rating和comment的信息
             this.orderDetails = response.data.map(detail => ({
               ...detail,
-              reviewed: detail.reviewed || false,  // 假设后端返回的数据中有reviewed字段
-              rating: detail.rating || null,       // 假设后端返回的数据中有rating字段
-              comment: detail.comment || ''        // 假设后端返回的数据中有comment字段
+              reviewed: detail.is_reviewed,  // 假设后端返回的数据中有reviewed字段
+              rating: detail.review ? detail.review.rating : null,
+              comment: detail.review ? detail.review.comment : '',
             }));
             this.loading = false;
           })
@@ -69,12 +69,13 @@ export default {
     },
     submitReview(detail) {
       const dishId = detail.dish.id;
+      const orderId = this.$route.params.id;
       const token = localStorage.getItem('token');
       const data = {
         rating: detail.rating,
         comment: detail.comment
       };
-      axios.post(`http://127.0.0.1:8000/api/dishes/${dishId}/add_review/`, data, {
+      axios.post(`http://127.0.0.1:8000/api/dishes/${dishId}/${orderId}/add_review/`, data, {
         headers: {
           'Authorization': `Token ${token}`
         }
