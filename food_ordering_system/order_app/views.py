@@ -9,7 +9,7 @@ from .serializers import OrderSerializer, OrderDetailSerializer
 from dish_app.models import Dish
 from decimal import Decimal
 from django.shortcuts import get_object_or_404
-from datetime import datetime
+from django.utils.timezone import now
 from django.utils import timezone
 
 
@@ -84,32 +84,18 @@ def place_order(request):
 
     order_type = request.data.get('order_type')
     order_dining_status = request.data.get('order_dining_status')
-    date = request.data.get('date')
-    time = request.data.get('time')
-
-    if order_dining_status == 'reservation':
-        if not date or not time:
-            return Response({"error": "Date and time are required for reservations."},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        # Combine date and time to create a datetime object
-        reservation_datetime_str = f"{date} {time}"
-        reservation_datetime = datetime.strptime(reservation_datetime_str, '%Y-%m-%d %H:%M:%S')
-
-        # Check if the reservation datetime is in the past
-        if reservation_datetime < datetime.now():
-            return Response({"error": "Reservation time cannot be in the past."}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         with transaction.atomic():
+            now_datetime = now()
             order = Order.objects.create(
                 user=request.user,
                 merchant_id=request.data.get('merchant'),
                 status='preparing',
-                order_type=request.data.get('order_type'),
-                order_dining_status=request.data.get('order_dining_status'),
-                date=request.data.get('date'),
-                time=request.data.get('time'),
+                order_type=order_type,
+                order_dining_status=order_dining_status,
+                date=now_datetime.date(),
+                time=now_datetime.time(),
                 total_price=Decimal('0.0')  # Initial price, calculate below
             )
 

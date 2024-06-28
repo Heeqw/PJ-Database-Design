@@ -132,12 +132,12 @@ def user_favorite_dish(request):
         sales_online = OrderDetail.objects.filter(
             dish=favorite.dish,
             order__order_type='online',
-            order__created_at__range=(start_date, end_date)
+            order__date__range=(start_date, end_date)
         ).count()
         sales_offline = OrderDetail.objects.filter(
             dish=favorite.dish,
             order__order_type='offline',
-            order__created_at__range=(start_date, end_date)
+            order__date__range=(start_date, end_date)
         ).count()
         data.append({
             'dish': DishSerializer(favorite.dish).data,
@@ -230,15 +230,15 @@ def user_activity_analysis(request):
     orders = Order.objects.filter(user=request.user)
 
     # 继续根据需要进行活跃度分析
-    weekly_activity = orders.annotate(week=TruncWeek('created_at', tzinfo=timezone.get_current_timezone())).values(
+    weekly_activity = orders.annotate(week=TruncWeek('date', tzinfo=timezone.get_current_timezone())).values(
         'week').annotate(
         count=Count('id')).order_by('week')
 
-    monthly_activity = orders.annotate(month=TruncMonth('created_at', tzinfo=timezone.get_current_timezone())).values(
+    monthly_activity = orders.annotate(month=TruncMonth('date', tzinfo=timezone.get_current_timezone())).values(
         'month').annotate(
         count=Count('id')).order_by('month')
 
-    time_activity = orders.annotate(hour=TruncHour('created_at', tzinfo=timezone.get_current_timezone())).values(
+    time_activity = orders.annotate(hour=TruncHour('time', tzinfo=timezone.get_current_timezone())).values(
         'hour').annotate(
         count=Count('id')).order_by('hour')
 
@@ -359,18 +359,18 @@ def dish_sales_trend(request, merchant_id):
         if interval == 'day':
             sales_trend = OrderDetail.objects.filter(
                 dish=dish,
-                order__created_at__range=(start_date, end_date)
-            ).annotate(interval=TruncDay('order__created_at')).values('interval').annotate(sales=Sum('quantity')).order_by('interval')
+                order__date__range=(start_date, end_date)
+            ).annotate(interval=TruncDay('order__date')).values('interval').annotate(sales=Sum('quantity')).order_by('interval')
         elif interval == 'week':
             sales_trend = OrderDetail.objects.filter(
                 dish=dish,
-                order__created_at__range=(start_date, end_date)
-            ).annotate(interval=TruncWeek('order__created_at')).values('interval').annotate(sales=Sum('quantity')).order_by('interval')
+                order__date__range=(start_date, end_date)
+            ).annotate(interval=TruncWeek('order__date')).values('interval').annotate(sales=Sum('quantity')).order_by('interval')
         elif interval == 'month':
             sales_trend = OrderDetail.objects.filter(
                 dish=dish,
-                order__created_at__range=(start_date, end_date)
-            ).annotate(interval=TruncMonth('order__created_at')).values('interval').annotate(sales=Sum('quantity')).order_by('interval')
+                order__date__range=(start_date, end_date)
+            ).annotate(interval=TruncMonth('order__date')).values('interval').annotate(sales=Sum('quantity')).order_by('interval')
         else:
             sales_trend = []
 

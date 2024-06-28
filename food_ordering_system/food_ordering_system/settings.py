@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'drf_yasg',
+    'food_ordering_system',
     'user_app',
     'merchant_app',
     'analytics_app',
