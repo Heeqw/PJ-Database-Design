@@ -1,14 +1,25 @@
 from rest_framework import serializers
-from .models import Order, OrderDetail
-from dish_app.models import Dish
+
+from common.serializers import ReviewSerializer
+from dish_app.models import Review
 from dish_app.serializers import DishDetailSerializer
+from .models import Order, OrderDetail
+
 
 class OrderDetailSerializer(serializers.ModelSerializer):
     dish = DishDetailSerializer()
+    review = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderDetail
-        fields = ['id', 'order', 'dish', 'quantity', 'price']
+        fields = ['id', 'order', 'dish', 'quantity', 'price', 'is_reviewed', 'review']
+
+    @staticmethod
+    def get_review(obj):
+        review = Review.objects.filter(user=obj.order.user, dish=obj.dish).first()
+        if review:
+            return ReviewSerializer(review).data
+        return None
 
 
 class OrderSerializer(serializers.ModelSerializer):

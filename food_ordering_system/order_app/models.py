@@ -38,3 +38,4 @@ class OrderDetail(models.Model):
     dish = models.ForeignKey(Dish, on_delete=models.CASCADE, db_index=True)
     quantity = models.IntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    is_reviewed = models.BooleanField(default=False, db_index=True)

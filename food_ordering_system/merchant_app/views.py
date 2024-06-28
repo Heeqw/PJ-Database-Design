@@ -118,7 +118,7 @@ def create_merchant(request):
             login_data = {
                 'merchant': merchant.id,  # 传递商家ID而不是实例
                 'username': request.data.get('username'),
-                'password': request.data.get('password') # 使用 make_password 加密密码
+                'password': request.data.get('password')  # 使用 make_password 加密密码
             }
             login_serializer = MerchantLoginSerializer(data=login_data)
             if login_serializer.is_valid():
@@ -466,6 +466,7 @@ def confirm_order(request, order_id):
 
     return Response({'message': 'Order status updated to completed'}, status=status.HTTP_200_OK)
 
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def merchant_reviews(request, merchant_id):
@@ -623,8 +624,9 @@ def create_dish(request):
     data = request.data.copy()  # 创建数据副本
     data['merchant'] = merchant_login_instance.merchant.id  # 添加商家 ID
 
-    serializer = DishSerializer(data=data)
-    if serializer.is_valid():
-        dish = serializer.save()
-        return Response(DishSerializer(dish).data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    with transaction.atomic():
+        serializer = DishSerializer(data=data)
+        if serializer.is_valid():
+            dish = serializer.save()
+            return Response(DishSerializer(dish).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
