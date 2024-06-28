@@ -8,5 +8,5 @@ urlpatterns = [
     path('merchant_loyal_customers/<int:merchant_id>/', merchant_loyal_customers, name='merchant_loyal_customers'),
     path('user_activity_analysis/', user_activity_analysis, name='user_activity_analysis'),
     path('user_demographics_analysis/', user_demographics_analysis, name='user_demographics_analysis'),
-    path('dish_sales_trend/<int:merchant_id>',dish_sales_trend, name='dish_sales_trend'),
+    path('dish_sales_trend/<int:merchant_id>/', dish_sales_trend, name='dish_sales_trend'),
 ]

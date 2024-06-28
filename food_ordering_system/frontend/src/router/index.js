@@ -22,9 +22,10 @@ import FavoriteDishView from "@/views/User/Dish/FavoriteDishView.vue";
 import MerchantDishCreateView from "@/views/Merchant/MerchantDishCreateView.vue";
 import UserMerchantLoyalCustomersView from "@/views/User/Merchant/UserMerchantLoyalCustomersView.vue";
 import UserActivitiesView from "@/views/User/UserActivitiesView.vue";
+//import UserDemographicsView from "@/views/User/UserDemographicsView.vue";
+import UserSalesTrendView  from "@/views/User/UserSalesTrendView.vue";
 
-/* import RegisterView from '@/views/RegisterView.vue';
-import AnalyticsView from '@/views/AnalyticsView.vue'; */
+
 
 const routes = [
   { path: '/', name: 'Home', component: HomeView, meta: { title: '首页' } },
@@ -48,8 +49,10 @@ const routes = [
   { path: '/users/dishes/:id', name: 'UserDishDetail', component: UserDishDetailView, meta: { breadcrumb:'用户菜品详情' } },
   { path: '/merchants/dishes/:id', name: 'MerchantDishDetail', component: MerchantDishDetailView, meta: { breadcrumb:'商家菜品详情' } },
   { path: '/merchants/dishes/create', name: 'MerchantDishCreate', component: MerchantDishCreateView, meta: { breadcrumb:'商家添加菜品' } },
-  { path: '/users/merchants/analytics/:id', name: 'UserMerchantLoyalCustomers', component: UserMerchantLoyalCustomersView , meta: { breadcrumb:'商家忠实顾客' } },
-  { path: '/users/analytics/', name: 'UserActivities', component: UserActivitiesView , meta: { breadcrumb:'用户活跃度' } }
+  { path: '/users/merchants/analytics/loyal/:id', name: 'UserMerchantLoyalCustomers', component: UserMerchantLoyalCustomersView , meta: { breadcrumb:'商家忠实顾客' } },
+  { path: '/users/analytics/activities', name: 'UserActivities', component: UserActivitiesView , meta: { breadcrumb:'用户活跃度' } },
+  //{ path: '/users/analytics/demographics', name: 'userDemographic', component: UserDemographicsView , meta: { breadcrumb:'群体特征分析' } },
+  { path: '/users/merchants/analytics/trends/:id', name: 'UserMerchantTrends', component: UserSalesTrendView , meta: { breadcrumb:'销售趋势' } }
 
 ];
 

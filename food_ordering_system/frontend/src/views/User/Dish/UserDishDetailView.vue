@@ -1,14 +1,13 @@
 <template>
   <div>
     <UserLogoutButton />
-    <h1>订单细节</h1>
+    <h1>菜品细节</h1>
     <div v-if="loading">Loading...</div>
     <div v-else>
       <p>名称：{{ dish.name }}</p>
       <p>描述：{{ dish.description }}</p>
       <p>价格：{{ dish.price }}</p>
       <p>类别：{{ dish.category }}</p>
-      <p><img :src="dish.image_url" alt="Dish Image"></p>
       <p>原料：{{ dish.ingredients }}</p>
       <p>营养信息：{{ dish.nutrition_info }}</p>
       <div>
@@ -17,6 +16,7 @@
           <li v-for="allergen in dish.allergens" :key="allergen.name">{{ allergen.name }}</li>
         </ul>
       </div>
+      <p><img :src="dish.image_url" alt="Dish Image"></p>
       <h2>Price History</h2>
       <div v-if="priceHistory.length === 0">无价格历史。</div>
       <ul v-else>

@@ -1,9 +1,10 @@
 <template>
   <div>
     <UserLogoutButton />
-    <el-button type="primary" class="dish-search-button" @click="goToDishSearch">搜索菜品</el-button>
-    <el-button type="primary" class="order-place-button" @click="goToOrderPlace">我要下单</el-button>
-    <el-button type="primary" class="order-place-button" @click="viewLoyal">忠实顾客</el-button>
+    <el-button type="primary" @click="goToDishSearch">搜索菜品</el-button>
+    <el-button type="primary" @click="goToOrderPlace">我要下单</el-button>
+    <el-button type="primary" @click="viewLoyal">忠实顾客</el-button>
+    <el-button type="primary" @click="viewTrend">销售趋势查看</el-button>
     <h1>商家详细信息</h1>
     <div v-if="loading">Loading...</div>
     <div v-else>
@@ -21,13 +22,13 @@
               <p>名称：{{ dish.name }}</p>
               <p>Id: {{ dish.id }}</p>
               <p>价格：{{ dish.price }}</p>
-            </router-link>
             <p>收藏量: {{ dish.favorite_count }}</p>
             <p>线上销量: {{ dish.online_sales }}</p>
             <p>线下销量: {{ dish.offline_sales }}</p>
             <p>评分: {{ dish.avg_rating }}</p>
             <p>总订单数: {{ dish.total_orders }}</p>
             <p>最高订单用户: {{ dish.top_customer?.username }}</p>
+            </router-link>
             <span v-if="isDishFavorite(dish.id)" class="favorite-star">⭐</span>
 
             <el-button
@@ -153,7 +154,7 @@ export default {
       axios.post('http://127.0.0.1:8000/api/users/add_favorite_dish/', { dish_id: dishId })
           .then(response => {
             console.log('Response data:', response.data);
-            alert('Dish added to favorites');
+            alert('成功收藏菜品！');
             // 更新已收藏的菜品列表
             this.favoriteDishes.push(dishId);
             // 更新收藏量
@@ -181,7 +182,11 @@ export default {
     viewLoyal() {
       const merchantId = this.$route.params.id;
       this.$router.push({ name: 'UserMerchantLoyalCustomers', params: { id: merchantId } });
-    }
+    },
+    viewTrend() {
+      const merchantId = this.$route.params.id;
+      this.$router.push({ name: 'UserMerchantTrends', params: { id: merchantId } });
+    },
   }
 };
 </script>
