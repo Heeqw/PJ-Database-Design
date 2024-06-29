@@ -12,8 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # 确保用户和商家存在
-        user1, created1 = User.objects.get_or_create(username="test_user1", defaults={"password": "password"})
-        user2, created2 = User.objects.get_or_create(username="test_user2", defaults={"password": "password"})
+        user1, created1 = User.objects.get_or_create(username="xiaowang", defaults={"password": "password"})
 
         merchants = [
             Merchant.objects.get_or_create(name="merchant_1", defaults={"address": "address_1"})[0],
@@ -64,10 +63,6 @@ class Command(BaseCommand):
                 create_order(user1, merchant, dish, 'online', 'dines_in', random.randint(11, 30), random.randint(1, 2), dish.price)
                 create_order(user1, merchant, dish, 'offline', 'reservation', random.randint(31, 365), random.randint(1, 5), dish.price)
 
-                create_order(user2, merchant, dish, 'online', 'dines_in', random.randint(1, 5), random.randint(1, 3), dish.price)
-                create_order(user2, merchant, dish, 'offline', 'reservation', random.randint(6, 10), random.randint(1, 5), dish.price)
-                create_order(user2, merchant, dish, 'online', 'dines_in', random.randint(11, 30), random.randint(1, 2), dish.price)
-                create_order(user2, merchant, dish, 'offline', 'reservation', random.randint(31, 365), random.randint(1, 5), dish.price)
 
         # 批量插入更多数据
         batch_size = 100
@@ -79,6 +74,6 @@ class Command(BaseCommand):
                 order_type = random.choice(['online', 'offline'])
                 order_dining_status = random.choice(['dines_in', 'reservation'])
                 quantity = random.randint(1, 5)
-                create_order(random.choice([user1, user2]), dish.merchant, dish, order_type, order_dining_status, days_ago, quantity, dish.price)
+                create_order(random.choice([user1]), dish.merchant, dish, order_type, order_dining_status, days_ago, quantity, dish.price)
 
         self.stdout.write(self.style.SUCCESS('大量订单数据创建成功！'))

@@ -249,13 +249,20 @@ def user_activity_analysis(request):
     monthly_activity_list = [{'month': month_start, 'count': count} for month_start, count in sorted(monthly_activity.items())]
 
     # 按小时统计
-    time_activity = defaultdict(int)
+    time_activity = {hour: 0 for hour in range(24)}
+
+    # 统计每小时的订单数
     for order in orders:
         if order.time:
             hour = order.time.hour
             time_activity[hour] += 1
 
     time_activity_list = [{'hour': hour, 'count': count} for hour, count in sorted(time_activity.items())]
+
+    # 调试输出
+    print("Weekly Activity:", weekly_activity_list)
+    print("Monthly Activity:", monthly_activity_list)
+    print("Time Activity:", time_activity_list)
 
     return Response({
         'weekly_activity': weekly_activity_list,
