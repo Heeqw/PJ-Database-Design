@@ -4,20 +4,20 @@
 复旦大学24春<数据库设计>课程校园点餐系统PJ项目代码存放仓库
 
 #### 软件架构
-软件架构说明
+前后端分离开发，使用Django REST framework和 Vue3 开发完成
 
 
 #### 安装教程
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1.  直接clone即可
 
 #### 使用说明
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1.  settings.py中部署好对应的数据库与数据库用户等相关信息
+2.  python manage.py createsuperuser 创建管理员超级用户用于访问管理员界面
+3.  clone 仓库后进入food_ordering_system文件夹python manage.py runserver 运行Python Django REST framework 后端框架
+4.  进入/food_ordering_system/frontend文件夹 npm install 安装需要的modules
+5.  npm run serve 运行Vue框架构建前端
 
 #### 参与贡献
 
@@ -27,11 +27,4 @@
 4.  新建 Pull Request
 
 
-#### 特技
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
