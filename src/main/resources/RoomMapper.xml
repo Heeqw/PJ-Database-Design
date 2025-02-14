@@ -1,0 +1,11 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.RoomMapper">
+    <insert id="insertRoom">
+        INSERT INTO room (kdno, kcno, ccno, kdname, exptime, papername)
+        VALUES
+        <foreach collection="rooms" item="room" separator=",">
+            (#{room.kdno}, #{room.kcno}, #{room.ccno}, #{room.kdname}, #{room.exptime}, #{room.papername})
+        </foreach>
+    </insert>
+</mapper>
+
