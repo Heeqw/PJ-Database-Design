@@ -1,0 +1,76 @@
+# Docker Compose configuration for Food Ordering System (Production)
+
+services:
+  # MySQL Database
+  db:
+    image: catherineheqw/food-ordering-db:latest
+    container_name: food_ordering_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: food_ordering_system
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 123456
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "13306:3306"  # Map MySQL port to 13306 as requested
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - food_ordering_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "admin", "-p123456"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Django Backend
+  backend:
+    image: catherineheqw/food-ordering-backend:latest
+    container_name: food_ordering_backend
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - backend_static:/app/static
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_NAME=food_ordering_system
+      - DB_USER=admin
+      - DB_PASSWORD=123456
+      - DJANGO_SETTINGS_MODULE=food_ordering_system.docker_settings
+      - PYTHONUNBUFFERED=1
+    networks:
+      - food_ordering_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/admin/"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    entrypoint: ["/bin/bash", "/app/docker-entrypoint.sh"]
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+  # Vue.js Frontend
+  frontend:
+    image: catherineheqw/food-ordering-frontend:latest
+    container_name: food_ordering_frontend
+    restart: always
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    networks:
+      - food_ordering_network
+
+networks:
+  food_ordering_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  backend_static:
