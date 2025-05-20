@@ -102,14 +102,11 @@ WSGI_APPLICATION = 'food_ordering_system.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'food_ordering_system',
-        'USER': 'admin',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',
-        'Port': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
         'OPTIONS': {
-            'charset': 'utf8mb4',
+            # SQLite-specific options
+            'timeout': 20,  # Timeout in seconds
         }
     }
 }

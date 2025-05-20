@@ -51,14 +51,29 @@ def dish_statistics(request, merchant_id):
             }
           ]
     """
+    from .models import DishSalesView
+
+    # Get dishes for the merchant
     dishes = Dish.objects.filter(merchant_id=merchant_id)
+
+    # Use the materialized view for sales and rating data
     data = []
     for dish in dishes:
-        reviews = Review.objects.filter(dish=dish)
-        avg_rating = reviews.aggregate(Avg('rating'))['rating__avg']
-        total_orders = OrderDetail.objects.filter(dish=dish).count()
-        top_customer = OrderDetail.objects.filter(dish=dish).values('order__user').annotate(count=Count('id')).order_by(
-            '-count').first()
+        # Try to get pre-computed data from the view
+        try:
+            sales_data = DishSalesView.objects.get(dish=dish)
+            avg_rating = sales_data.avg_rating
+            total_orders = sales_data.total_sales
+        except DishSalesView.DoesNotExist:
+            # Fall back to direct calculation if view data is not available
+            reviews = Review.objects.filter(dish=dish)
+            avg_rating = reviews.aggregate(Avg('rating'))['rating__avg']
+            total_orders = OrderDetail.objects.filter(dish=dish).count()
+
+        # Get top customer (not stored in the view)
+        top_customer = OrderDetail.objects.filter(dish=dish).values('order__user').annotate(
+            count=Count('id')).order_by('-count').first()
+
         if top_customer:
             top_customer_username = User.objects.get(id=top_customer['order__user']).username
             data.append({

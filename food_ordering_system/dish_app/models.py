@@ -20,8 +20,40 @@ class Dish(models.Model):
     nutrition_info = models.TextField(blank=True)
     allergens = models.ManyToManyField(Allergen, blank=True, related_name='dished_with_allergen')
 
+    class Meta:
+        # Add composite indexes for common query patterns
+        indexes = [
+            # For merchant + category queries
+            models.Index(fields=['merchant', 'category'], name='merchant_category_idx'),
+            # For price range queries
+            models.Index(fields=['price'], name='price_idx'),
+            # For merchant + name search
+            models.Index(fields=['merchant', 'name'], name='merchant_name_idx'),
+        ]
+
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        # Check if this is an update to an existing dish
+        if self.pk:
+            # Get the old price before saving
+            try:
+                old_dish = Dish.objects.get(pk=self.pk)
+                old_price = old_dish.price
+
+                # If price has changed, create a price history record
+                if old_price != self.price:
+                    PriceHistory.objects.create(
+                        dish=self,
+                        old_price=old_price,
+                        new_price=self.price
+                    )
+            except Dish.DoesNotExist:
+                pass  # This is a new dish, no price history needed
+
+        # Call the original save method
+        super().save(*args, **kwargs)
 
 
 class Review(models.Model):

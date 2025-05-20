@@ -1,17 +1,22 @@
 <template>
-  <div>
-    <h2>用户登录</h2>
-    <form @submit.prevent="login">
-      <div style="display: block;">
-        <label>用户名：</label>
-        <el-input v-model="username" style="width: 240px" type="username" placeholder="Please input username" clearable/>
-      </div>
-      <div style="display: block;">
-        <label>密码：</label>
-        <el-input v-model="password" style="width: 240px" type="password" placeholder="Please input password" clearable show-password/>
-      </div>
-      <button type="submit">Login</button>
-    </form>
+  <div class="login-container">
+    <div>
+      <h2>用户登录</h2>
+      <form @submit.prevent="login">
+        <div style="display: block;">
+          <label>用户名：</label>
+          <el-input v-model="username" style="width: 240px" type="username" placeholder="Please input username" clearable/>
+        </div>
+        <div style="display: block;">
+          <label>密码：</label>
+          <el-input v-model="password" style="width: 240px" type="password" placeholder="Please input password" clearable show-password/>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+    <div class="register-link">
+      没有账号？<router-link to="/register">立即注册</router-link>
+    </div>
   </div>
 </template>
 
@@ -51,4 +56,9 @@ export default {
 
 <style scoped>
 /* 在这里添加你的样式 */
+.register-link {
+  margin-top: 15px;
+  text-align: center;
+}
 </style>
+

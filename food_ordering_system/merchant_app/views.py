@@ -166,6 +166,7 @@ def merchant_login(request):
     """
     username = request.data.get('username')
     password = request.data.get('password')
+    
     try:
         merchant_login_instance = MerchantLogin.objects.get(username=username)
         merchant = merchant_login_instance.merchant
@@ -175,13 +176,20 @@ def merchant_login(request):
             'address': merchant.address,
             'phone': merchant.phone
         }
-        if check_password(password, merchant_login_instance.password):  # 使用 check_password 验证密码
+        
+        # 打印调试信息
+        print(f"尝试登录: {username}")
+        print(f"存储的密码哈希: {merchant_login_instance.password}")
+        
+        if check_password(password, merchant_login_instance.password):
             token, created = MerchantToken.objects.get_or_create(user=merchant_login_instance)
             return Response({'message': '登录成功', 'token': token.key, 'merchant': merchant_data},
                             status=status.HTTP_200_OK)
         else:
+            print(f"密码验证失败: 输入的密码 '{password}' 与存储的哈希不匹配")
             return Response({'error': '密码错误'}, status=status.HTTP_401_UNAUTHORIZED)
     except MerchantLogin.DoesNotExist:
+        print(f"用户名不存在: {username}")
         return Response({'error': '用户名不存在'}, status=status.HTTP_401_UNAUTHORIZED)
 
 

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '@/views/HomeView.vue';
 import UserLoginView from '@/views/User/UserLoginView.vue';
+import UserRegisterView from '@/views/User/UserRegisterView.vue';
 import UserDashboardView from "@/views/User/UserDashboardView.vue";
 import UserProfileView from '@/views/User/UserProfileView.vue';
 import UserOrderView from '@/views/User/Order/UserOrderView.vue';
@@ -24,12 +25,12 @@ import UserMerchantLoyalCustomersView from "@/views/User/Merchant/UserMerchantLo
 import UserActivitiesView from "@/views/User/UserActivitiesView.vue";
 import UserDemographicsView from "@/views/User/UserDemographicsView.vue";
 import UserSalesTrendView  from "@/views/User/UserSalesTrendView.vue";
-
-
+import MerchantRegisterView from '@/views/Merchant/MerchantRegisterView.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: HomeView, meta: { title: '首页' } },
   { path: '/users/login', name: 'UserLogin', component: UserLoginView, meta: { breadcrumb:'用户登录' } },
+  { path: '/users/register', name: 'UserRegister', component: UserRegisterView, meta: { breadcrumb:'用户注册' } },
   { path: '/users/dashboard/:id', name: 'UserDashboardView', component: UserDashboardView, meta: { breadcrumb:'用户仪表盘' } },
   { path: '/users/profile', name: 'UserProfileView', component: UserProfileView, meta: { breadcrumb:'用户资料' } },
   { path: '/users/order', name: 'UserOrder', component: UserOrderView, meta: { breadcrumb:'用户订单' } },
@@ -41,6 +42,7 @@ const routes = [
   { path: '/users/favorites/dish', name: 'FavoriteDishes', component: FavoriteDishView, meta: { breadcrumb:'收藏菜品' } },
   { path: '/merchants/dashboard/:id', name: 'MerchantDashboardView', component: MerchantDashboardView, meta: { breadcrumb:'商家仪表盘' } },
   { path: '/merchants/login', name: 'MerchantLogin', component: MerchantLoginView, meta: { breadcrumb:'商家登录' } },
+  { path: '/merchants/register', name: 'MerchantRegister', component: MerchantRegisterView, meta: { breadcrumb:'商家注册' } },
   { path: '/users/merchants/search', name: 'MerchantSearch', component: MerchantSearchView, meta: { breadcrumb:'商家搜索' } },
   { path: '/users/merchants/:id', name: 'MerchantDetail', component: MerchantDetailView, meta: { breadcrumb:'商家详情' } },
   { path: '/merchants/profile/:id', name: 'MerchantProfile', component: MerchantProfileView, meta: { breadcrumb:'商家资料' } },
@@ -64,3 +66,5 @@ const router = createRouter({
 });
 
 export default router;
+
+

@@ -72,31 +72,33 @@ export default {
         return;
       }
 
-      const token = localStorage.getItem('merchantToken'); // 假设 token 存储在 localStorage 中
+      // 使用正确的token变量名
+      const token = localStorage.getItem('token'); // 不是merchantToken
       axios.post('http://127.0.0.1:8000/api/merchants/create_dish/', this.form, {
         headers: {
           'Authorization': `Token ${token}`
         }
       })
-          .then(response => {
-            console.log('成功添加菜品:', response.data);
-            this.success = true;
-            this.error = null;
-            this.form = {
-              name: '',
-              price: '',
-              category: '',
-              image_url: ''
-            };
-          })
-          .catch(error => {
-            this.success = false;
-            if (error.response) {
-              this.error = error.response.data;
-            } else {
-              this.error = '请求失败，请稍后重试。';
-            }
-          });
+      .then(response => {
+        console.log('成功添加菜品:', response.data);
+        this.success = true;
+        this.error = null;
+        this.form = {
+          name: '',
+          price: '',
+          category: '',
+          image_url: ''
+        };
+      })
+      .catch(error => {
+        this.success = false;
+        if (error.response) {
+          this.error = error.response.data;
+          console.error('添加菜品失败:', error.response.data);
+        } else {
+          this.error = '请求失败，请稍后重试。';
+        }
+      });
     }
   }
 };
@@ -110,3 +112,4 @@ export default {
   color: green;
 }
 </style>
+

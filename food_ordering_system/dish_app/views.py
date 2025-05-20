@@ -188,15 +188,36 @@ def dish_sales_count(request, merchant_id):
             }
           ]
     """
+    # Import the materialized view model
+    from analytics_app.models import DishSalesView
+
+    # Get dishes for the merchant
     dishes = Dish.objects.filter(merchant_id=merchant_id)
     data = []
+
     for dish in dishes:
-        online_sales = OrderDetail.objects.filter(dish=dish, order__order_type='online').aggregate(total_sales=Sum('quantity'))['total_sales'] or 0
-        offline_sales = OrderDetail.objects.filter(dish=dish, order__order_type='offline').aggregate(total_sales=Sum('quantity'))['total_sales'] or 0
+        # Try to get pre-computed data from the view
+        try:
+            sales_data = DishSalesView.objects.get(dish=dish)
+            online_sales = sales_data.online_sales
+            offline_sales = sales_data.offline_sales
+        except DishSalesView.DoesNotExist:
+            # Fall back to direct calculation if view data is not available
+            online_sales = OrderDetail.objects.filter(
+                dish=dish,
+                order__order_type='online'
+            ).aggregate(total_sales=Sum('quantity'))['total_sales'] or 0
+
+            offline_sales = OrderDetail.objects.filter(
+                dish=dish,
+                order__order_type='offline'
+            ).aggregate(total_sales=Sum('quantity'))['total_sales'] or 0
+
         data.append({
             'dish_id': dish.id,
             'dish_name': dish.name,
             'online_sales': online_sales,
             'offline_sales': offline_sales
         })
+
     return Response(data, status=status.HTTP_200_OK)

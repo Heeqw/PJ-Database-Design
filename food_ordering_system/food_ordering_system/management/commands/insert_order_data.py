@@ -3,21 +3,37 @@ from datetime import timedelta, datetime, time
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from user_app.models import User
-from merchant_app.models import Merchant
+from merchant_app.models import Merchant, MerchantLogin
 from dish_app.models import Dish
 from order_app.models import Order, OrderDetail
+from django.contrib.auth.hashers import make_password
 
 class Command(BaseCommand):
     help = '插入大量Order和OrderDetail数据'
 
     def handle(self, *args, **kwargs):
         # 确保用户和商家存在
-        user1, created1 = User.objects.get_or_create(username="xiaowang", defaults={"password": "password"})
+        user1, created1 = User.objects.get_or_create(username="xiaowang", defaults={"password": make_password("password")})
 
         merchants = [
             Merchant.objects.get_or_create(name="merchant_1", defaults={"address": "address_1"})[0],
             Merchant.objects.get_or_create(name="merchant_2", defaults={"address": "address_2"})[0]
         ]
+        
+        # 为商家创建登录凭据
+        for merchant in merchants:
+            merchant_login, created = MerchantLogin.objects.get_or_create(
+                merchant=merchant,
+                username=f"{merchant.name}_admin",
+                defaults={"password": make_password("merchant123")}
+            )
+            
+            # 如果已存在但想确保密码正确，可以更新密码
+            if not created:
+                merchant_login.password = make_password("merchant123")
+                merchant_login.save()
+            
+            self.stdout.write(self.style.SUCCESS(f'商家 {merchant.name} 登录凭据创建成功！用户名: {merchant_login.username}'))
 
         dishes = []
         for merchant in merchants:
@@ -77,3 +93,5 @@ class Command(BaseCommand):
                 create_order(random.choice([user1]), dish.merchant, dish, order_type, order_dining_status, days_ago, quantity, dish.price)
 
         self.stdout.write(self.style.SUCCESS('大量订单数据创建成功！'))
+
+

@@ -11,6 +11,14 @@ from decimal import Decimal
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from django.utils import timezone
+from rest_framework.pagination import PageNumberPagination
+from django.db.models import Q
+from django.utils.dateparse import parse_date
+
+class OrderPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 @api_view(['POST'])
@@ -128,36 +136,97 @@ def order_history(request):
     """
     获取用户的订单历史。
 
+    查询参数:
+      - status: 订单状态过滤 (preparing/completed)
+      - merchant: 商家ID过滤
+      - start_date: 开始日期过滤 (YYYY-MM-DD)
+      - end_date: 结束日期过滤 (YYYY-MM-DD)
+      - order_type: 订单类型过滤 (online/offline)
+      - sort: 排序字段 (date/-date/price/-price)
+      - page: 页码
+      - page_size: 每页数量
+
     响应:
       200:
         描述: 订单历史
         示例:
-          [
-            {
-              "id": 1,
-              "user": 1,
-              "merchant": 1,
-              "status": "completed",
-              "order_type": "online",
-              "order_dining_status": "dines_in",
-              "total_price": 100.99,
-              "created_at": "2024-06-07T12:00:00Z",
-              "updated_at": "2024-06-07T12:00:00Z",
-              "details": [
-                {
-                  "id": 1,
-                  "order": 1,
-                  "dish": 1,
-                  "quantity": 2,
-                  "price": 20.99
-                }
-              ]
-            }
-          ]
+          {
+            "count": 100,
+            "next": "http://api/orders/order_history/?page=2",
+            "previous": null,
+            "results": [
+              {
+                "id": 1,
+                "user": 1,
+                "merchant": 1,
+                "status": "completed",
+                "order_type": "online",
+                "order_dining_status": "dines_in",
+                "total_price": 100.99,
+                "date": "2024-06-07",
+                "time": "12:00:00",
+                "created_at": "2024-06-07T12:00:00Z",
+                "updated_at": "2024-06-07T12:00:00Z",
+                "merchant_name": "示例商家"
+              }
+            ]
+          }
     """
-    orders = Order.objects.filter(user=request.user)
-    serializer = OrderSerializer(orders, many=True)
-    return Response(serializer.data)
+    # 构建过滤条件
+    filters = Q(user=request.user)
+    
+    # 状态过滤
+    status = request.query_params.get('status')
+    if status:
+        filters &= Q(status=status)
+    
+    # 商家过滤
+    merchant_id = request.query_params.get('merchant')
+    if merchant_id:
+        filters &= Q(merchant_id=merchant_id)
+    
+    # 日期范围过滤
+    start_date = request.query_params.get('start_date')
+    if start_date:
+        start_date = parse_date(start_date)
+        if start_date:
+            filters &= Q(date__gte=start_date)
+    
+    end_date = request.query_params.get('end_date')
+    if end_date:
+        end_date = parse_date(end_date)
+        if end_date:
+            filters &= Q(date__lte=end_date)
+    
+    # 订单类型过滤
+    order_type = request.query_params.get('order_type')
+    if order_type:
+        filters &= Q(order_type=order_type)
+    
+    # 获取订单并应用过滤
+    orders = Order.objects.filter(filters)
+    
+    # 排序
+    sort_param = request.query_params.get('sort', '-date')  # 默认按日期降序
+    orders = orders.order_by(sort_param)
+    
+    # 分页
+    paginator = OrderPagination()
+    paginated_orders = paginator.paginate_queryset(orders, request)
+    
+    # 序列化
+    serializer = OrderSerializer(paginated_orders, many=True)
+    
+    # 添加商家名称
+    for order_data in serializer.data:
+        try:
+            from merchant_app.models import Merchant
+            merchant = Merchant.objects.get(id=order_data['merchant'])
+            order_data['merchant_name'] = merchant.name
+        except:
+            order_data['merchant_name'] = "未知商家"
+    
+    return paginator.get_paginated_response(serializer.data)
 
 
 @api_view(['GET'])

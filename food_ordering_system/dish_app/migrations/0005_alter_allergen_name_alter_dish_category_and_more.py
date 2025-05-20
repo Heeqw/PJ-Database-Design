@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("dish_app", "0004_pricehistory"),
+        ("dish_app", "0004_dish_indexes_and_trigger"),
     ]
 
     operations = [
